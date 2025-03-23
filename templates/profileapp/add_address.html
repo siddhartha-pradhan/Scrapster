@@ -1,41 +1,74 @@
 {% extends "profileapp/base.html" %}
-
+{% load widget_tweaks %}
 {% block content %}
-<div class="container mx-auto mt-8 p-4 max-w-md">
-    <h2 class="text-2xl font-bold mb-6">Add Address</h2>
-
-    <form method="POST">
-        {% csrf_token %}
-        <div class="mb-4">
-            <label for="id_address" class="block text-sm font-medium">Address</label>
-            {{ form.address }}
+    <div class="container mx-auto mt-8 p-6 max-w-xl">
+        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+            <div class="bg-gradient-to-r from-primary to-secondary p-5 text-white">
+                <div class="flex items-center">
+                    <i class="fas fa-map-marker-alt text-2xl mr-3"></i>
+                    <h2 class="text-2xl font-bold">Add Address</h2>
+                </div>
+            </div>
+            <div class="p-6">
+                <form method="POST" class="space-y-5">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="id_address" class="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-home text-gray-400"></i>
+                            </div>
+                            {{ form.address|add_class:"pl-10 w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_address_type" class="block text-sm font-medium text-gray-700 mb-1">Address Type</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-tag text-gray-400"></i>
+                            </div>
+                            {{ form.address_type|add_class:"pl-10 w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_city" class="block text-sm font-medium text-gray-700 mb-1">City</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-city text-gray-400"></i>
+                            </div>
+                            {{ form.city|add_class:"pl-10 w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_state" class="block text-sm font-medium text-gray-700 mb-1">State</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-map text-gray-400"></i>
+                            </div>
+                            {{ form.state|add_class:"pl-10 w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" }}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="id_postal_code" class="block text-sm font-medium text-gray-700 mb-1">Postal Code</label>
+                        <div class="relative">
+                            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                <i class="fas fa-mail-bulk text-gray-400"></i>
+                            </div>
+                            {{ form.postal_code|add_class:"pl-10 w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" }}
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-between pt-4">
+                        <a href="{% url 'profileapp:user_profile' %}" class="flex items-center text-gray-600 hover:text-gray-800 transition-colors">
+                            <i class="fas fa-arrow-left mr-2"></i>
+                            Back to Profile
+                        </a>
+                        <button type="submit" class="bg-primary hover:bg-dark text-white px-6 py-3 rounded-lg transition-colors duration-300 flex items-center">
+                            <i class="fas fa-plus-circle mr-2"></i>
+                            Add Address
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
-
-        <div class="mb-4">
-            <label for="id_address_type" class="block text-sm font-medium">Address Type</label>
-            {{ form.address_type }}
-        </div>
-
-        <div class="mb-4">
-            <label for="id_city" class="block text-sm font-medium">City</label>
-            {{ form.city }}
-        </div>
-
-        <div class="mb-4">
-            <label for="id_state" class="block text-sm font-medium">State</label>
-            {{ form.state }}
-        </div>
-
-        <div class="mb-4">
-            <label for="id_postal_code" class="block text-sm font-medium">Postal Code</label>
-            {{ form.postal_code }}
-        </div>
-
-        <div class="mb-4">
-            <button type="submit" class="bg-blue-500 text-white p-2 rounded">Add Address</button>
-        </div>
-    </form>
-
-    <a href="{% url 'profileapp:user_profile' %}" class="text-blue-500">Back to Profile</a>
-</div>
+    </div>
 {% endblock %}

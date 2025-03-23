@@ -1,48 +1,112 @@
 {% extends "profileapp/base.html" %}
-
-{% block title %}My Waste Collection Requests{% endblock %}
-
 {% block content %}
-<div class="container mx-auto mt-8 p-4 space-y-8">
-    <!-- Page Header -->
-    <h2 class="text-2xl font-bold border-b pb-2">My Waste Collection Requests</h2>
-
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-clipboard-list text-primary mr-2"></i>My Pending Requests
+        </h2>
+        <a href="{% url 'wasteapp:submit_request' %}" class="bg-primary hover:bg-dark text-white py-2 px-4 rounded-lg text-sm flex items-center transition-all">
+            <i class="fas fa-plus mr-2"></i> New Request
+        </a>
+    </div>
     {% if pending_requests %}
-    <ul class="space-y-6">
+    <div class="grid grid-cols-1 gap-6">
         {% for request in pending_requests %}
-        <li class="p-6 bg-white shadow-lg rounded-lg">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <!-- Request Details -->
-                <div>
-                    <p><strong>Waste Type:</strong> {{ request.waste_type }}</p>
-                    <p><strong>Quantity:</strong> {{ request.quantity }} kg</p>
-                    <p><strong>Collection Time:</strong> {{ request.collection_time }}</p>
-                    <p><strong>Location:</strong> {{ request.collection_location }}</p>
-                    {% if request.driver %}
-                    <p><strong>Assigned Driver:</strong> 
-                        <a href="{% url 'driverapp:view_driver_details' request.driver.id %}" 
-                           class="text-blue-500 hover:underline">
-                            {{ request.driver.username }}
-                        </a>
-                    </p>
+        <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100 hover:shadow-lg transition-all">
+            <div class="border-l-4 border-primary px-4 py-3 bg-light flex justify-between items-center">
+                <span class="font-medium text-primary">Request #{{ request.id }}</span>
+                <span class="bg-yellow-100 text-yellow-800 text-xs px-2 py-1 rounded-full">Pending</span>
+            </div>
+            <div class="p-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-3">
+                        <div class="flex items-start">
+                            <div class="bg-light rounded-full p-2 mr-3">
+                                <i class="fas fa-trash-alt text-primary"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Waste Type</p>
+                                <p class="font-medium">{{ request.waste_type }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="bg-light rounded-full p-2 mr-3">
+                                <i class="fas fa-weight text-primary"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Quantity</p>
+                                <p class="font-medium">{{ request.quantity }} kg</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="bg-light rounded-full p-2 mr-3">
+                                <i class="fas fa-clock text-primary"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Collection Time</p>
+                                <p class="font-medium">{{ request.collection_time }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex items-start">
+                            <div class="bg-light rounded-full p-2 mr-3">
+                                <i class="fas fa-map-marker-alt text-primary"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Location</p>
+                                <p class="font-medium">{{ request.collection_location }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="bg-light rounded-full p-2 mr-3">
+                                <i class="fas fa-user text-primary"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Assigned Driver</p>
+                                {% if request.driver %}
+                                <p class="font-medium">
+                                    <a href="{% url 'driverapp:view_driver_details' request.driver.id %}"
+                                       class="text-primary hover:text-dark hover:underline">
+                                        {{ request.driver.username }}
+                                    </a>
+                                </p>
+                                {% else %}
+                                <p class="text-gray-500 italic">Not assigned yet</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end">
+                    {% if request.can_mark_complete %}
+                    <a href="{% url 'wasteapp:mark_as_completed' request.id %}"
+                       class="bg-green-500 hover:bg-green-600 text-white py-2 px-6 rounded-lg transition-all flex items-center">
+                        <i class="fas fa-check-circle mr-2"></i> Mark as Completed
+                    </a>
                     {% else %}
-                    <p><strong>Assigned Driver:</strong> None</p>
+                    <button disabled
+                       class="bg-gray-300 text-gray-600 py-2 px-6 rounded-lg transition-all flex items-center cursor-not-allowed">
+                        <i class="fas fa-lock mr-2"></i> Cannot Mark Yet
+                    </button>
                     {% endif %}
                 </div>
-
-                <!-- Action Button -->
-                <div class="flex sm:justify-end items-center">
-                    <a href="{% url 'wasteapp:mark_as_completed' request.id %}" 
-                       class="bg-green-500 text-white py-2 px-6 rounded-lg hover:bg-green-700">
-                        Mark as Completed
-                    </a>
-                </div>
             </div>
-        </li>
+        </div>
         {% endfor %}
-    </ul>
+    </div>
     {% else %}
-    <p class="text-gray-600">No pending requests found.</p>
+    <div class="bg-white rounded-xl shadow-md p-8 text-center border border-gray-100">
+        <div class="w-16 h-16 bg-light rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-clipboard-check text-2xl text-primary"></i>
+        </div>
+        <h3 class="text-xl font-medium text-gray-800 mb-2">No Pending Requests</h3>
+        <p class="text-gray-600 mb-6">You don't have any pending waste collection requests at the moment.</p>
+        <a href="{% url 'wasteapp:submit_request' %}"
+           class="inline-block bg-primary hover:bg-dark text-white py-2 px-6 rounded-lg transition-all">
+            Submit a New Request
+        </a>
+    </div>
     {% endif %}
 </div>
 {% endblock %}

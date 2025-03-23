@@ -1,38 +1,164 @@
 {% extends "profileapp/base.html" %}
-
-{% block title %}My Completed Requests{% endblock %}
-
 {% block content %}
-<div class="container mx-auto mt-8 p-4 space-y-8">
-    <!-- Page Header -->
-    <h2 class="text-2xl font-bold border-b pb-2">My Completed Waste Collection Requests</h2>
-
+<div class="max-w-4xl">
+    <div class="flex items-center justify-between mb-5">
+        <h2 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-history text-primary mr-2"></i>My Completed Requests
+        </h2>
+        <a href="{% url 'wasteapp:my_requests' %}" class="text-primary hover:text-dark py-2 px-4 rounded-lg text-sm flex items-center transition-all">
+            <i class="fas fa-arrow-left mr-2"></i> View Pending Requests
+        </a>
+    </div>
     {% if completed_requests %}
-    <ul class="space-y-6">
+    <div class="grid grid-cols-1 gap-6">
         {% for request in completed_requests %}
-        <li class="p-6 bg-gray-50 shadow-lg rounded-lg">
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <!-- Request Details -->
-                <div class="space-y-2">
-                    <p><strong>Waste Type:</strong> {{ request.waste_type }}</p>
-                    <p><strong>Quantity:</strong> {{ request.quantity }} kg</p>
-                    <p><strong>Collection Time:</strong> {{ request.collection_time }}</p>
-                    <p><strong>Location:</strong> {{ request.collection_location }}</p>
-                    <p><strong>Created At:</strong> {{ request.created_at|date:"F j, Y, g:i a" }}</p>
+        <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-100">
+            <div class="border-l-4 border-green-500 px-4 py-3 bg-green-50 flex justify-between items-center">
+                <span class="font-medium text-green-700">Request #{{ request.id }}</span>
+                <span class="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full">Completed</span>
+            </div>
+            <div class="p-5">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="space-y-3">
+                        <div class="flex items-start">
+                            <div class="bg-light rounded-full p-2 mr-3">
+                                <i class="fas fa-trash-alt text-primary"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Waste Type</p>
+                                <p class="font-medium">{{ request.waste_type }}</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="bg-light rounded-full p-2 mr-3">
+                                <i class="fas fa-weight text-primary"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Quantity</p>
+                                <p class="font-medium">{{ request.quantity }} kg</p>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="bg-light rounded-full p-2 mr-3">
+                                <i class="fas fa-clock text-primary"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Collection Time</p>
+                                <p class="font-medium">{{ request.collection_time }}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex items-start">
+                            <div class="bg-light rounded-full p-2 mr-3">
+                                <i class="fas fa-map-marker-alt text-primary"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Location</p>
+                                <p class="font-medium">{{ request.collection_location }}</p>
+                            </div>
+                        </div>
+
+                        <div class="flex items-start">
+                            <div class="bg-light rounded-full p-2 mr-3">
+                                <i class="fas fa-calendar-check text-primary"></i>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-500">Completed On</p>
+                                <p class="font-medium">{{ request.created_at|date:"F j, Y, g:i a" }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-6 bg-light rounded-lg p-4">
+                    <h4 class="font-medium text-primary flex items-center mb-2">
+                        <i class="fas fa-leaf mr-2"></i> Environmental Impact
+                    </h4>
+                    <p class="text-sm text-gray-600">
+                        By recycling {{ request.quantity }} kg of {{ request.waste_type }}, you've helped save approximately
+                        {% if request.waste_type == 'Paper' %}
+                            {{ request.quantity|floatformat:1 }} trees and {{ request.quantity }} gallons of water
+                        {% elif request.waste_type == 'Plastic' %}
+                            {{ request.quantity }} gallons of oil and reduced carbon emissions by {{ request.quantity }} kg
+                        {% elif request.waste_type == 'Metal' %}
+                            {{ request.quantity }} kg of CO₂ emissions
+                        {% elif request.waste_type == 'Glass' %}
+                            {{ request.quantity }} kg of CO₂ emissions
+                        {% elif request.waste_type == 'E-waste' %}
+                            {{ request.quantity }} kg of CO₂ emissions and prevented toxic materials from entering landfills
+                        {% else %}
+                            reduced your carbon footprint and contributed to a cleaner environment
+                        {% endif %}
+                    </p>
                 </div>
             </div>
-        </li>
+        </div>
         {% endfor %}
-    </ul>
+    </div>
     {% else %}
-    <!-- Empty State -->
-    <div class="text-center py-12">
-        <p class="text-gray-600 text-lg">No completed requests found.</p>
-        <a href="{% url 'wasteapp:submit_request' %}" 
-           class="mt-4 inline-block bg-blue-500 text-white py-2 px-6 rounded-lg hover:bg-blue-700">
+    <div class="bg-white rounded-xl shadow-md p-8 text-center border border-gray-100">
+        <div class="w-16 h-16 bg-light rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-recycle text-2xl text-primary"></i>
+        </div>
+        <h3 class="text-xl font-medium text-gray-800 mb-2">No Completed Requests Yet</h3>
+        <p class="text-gray-600 mb-6">Start your recycling journey by submitting your first waste collection request.</p>
+        <a href="{% url 'wasteapp:submit_request' %}"
+           class="inline-block bg-primary hover:bg-dark text-white py-2 px-6 rounded-lg transition-all">
             Submit a New Request
         </a>
     </div>
+    {% endif %}
+    {% if completed_requests %}
+    <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100 mt-5">
+        <h3 class="text-xl font-medium text-gray-800 mb-4 flex items-center">
+            <i class="fas fa-chart-bar text-primary mr-2"></i> Your Recycling Impact
+        </h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div class="bg-light rounded-lg p-4 text-center">
+                <div class="text-3xl font-bold text-primary mb-1">{{ total_collections }}</div>
+                <div class="text-sm text-gray-600">Total Collections</div>
+            </div>
+            <div class="bg-light rounded-lg p-4 text-center">
+                <div class="text-3xl font-bold text-primary mb-1">{{ total_waste }} kg</div>
+                <div class="text-sm text-gray-600">Total Waste Recycled</div>
+            </div>
+            <div class="bg-light rounded-lg p-4 text-center">
+                <div class="text-3xl font-bold text-primary mb-1">{{ total_co2_saved }} kg</div>
+                <div class="text-sm text-gray-600">CO₂ Emissions Saved</div>
+            </div>
+
+            {% if total_trees_saved > 0 %}
+            <div class="bg-light rounded-lg p-4 text-center">
+                <div class="text-3xl font-bold text-primary mb-1">{{ total_trees_saved|floatformat:1 }}</div>
+                <div class="text-sm text-gray-600">Trees Saved</div>
+            </div>
+            {% endif %}
+
+            {% if total_water_saved > 0 %}
+            <div class="bg-light rounded-lg p-4 text-center">
+                <div class="text-3xl font-bold text-primary mb-1">{{ total_water_saved }} gallons</div>
+                <div class="text-sm text-gray-600">Water Saved</div>
+            </div>
+            {% endif %}
+
+            {% if total_oil_saved > 0 %}
+            <div class="bg-light rounded-lg p-4 text-center">
+                <div class="text-3xl font-bold text-primary mb-1">{{ total_oil_saved }} gallons</div>
+                <div class="text-sm text-gray-600">Oil Saved</div>
+            </div>
+            {% endif %}
+
+            {% if prevented_toxic %}
+            <div class="bg-light rounded-lg p-4 text-center">
+                <div class="text-3xl font-bold text-green-600 mb-1">
+                    <i class="fas fa-ban"></i>
+                </div>
+                <div class="text-sm text-gray-600">Toxic materials kept out of landfills</div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
     {% endif %}
 </div>
 {% endblock %}

@@ -10,6 +10,7 @@ from driverapp.models import DriverProfile
 from django.core.mail import send_mail
 from django.conf import settings
 
+from django.db.models import Count, Sum
 
 # View for the admin dashboard
 @role_required(allowed_roles=['admin'])
@@ -31,7 +32,35 @@ def admin_dashboard(request):
         "total_users": total_users,
         "assigned_requests": assigned_requests,
     }
-    # Render the admin dashboard template with the context data
+
+    # Add data for waste type distribution
+    waste_type_counts = WasteRequest.objects.values('waste_type').annotate(count=Count('id'))
+    waste_quantity_by_type = WasteRequest.objects.values('waste_type').annotate(total=Sum('quantity'))
+    waste_type_data = {item['waste_type']: item['count'] for item in waste_type_counts}
+    waste_quantity_data = {item['waste_type']: item['total'] for item in waste_quantity_by_type}
+
+    # Add data for collection trends (last 7 days)
+    from datetime import datetime, timedelta
+    last_7_days = []
+    collection_counts = []
+
+    for i in range(6, -1, -1):
+        day = datetime.now().date() - timedelta(days=i)
+        count = WasteRequest.objects.filter(created_at__date=day).count()
+        last_7_days.append(day.strftime('%a'))
+        collection_counts.append(count)
+
+    context.update({
+        "waste_type_data": waste_type_data,
+        "waste_quantity_data": waste_quantity_data,
+        "last_7_days": last_7_days,
+        "collection_counts": collection_counts,
+        "waste_type_data_keys": list(waste_type_data.keys()),
+        "waste_type_data_values": list(waste_type_data.values()),
+        "waste_quantity_data_keys": list(waste_quantity_data.keys()),
+        "waste_quantity_data_values": list(waste_quantity_data.values()),
+    })
+
     return render(request, "adminapp/dashboard.html", context)
 
 
@@ -82,30 +111,16 @@ def reject_request(request, request_id):
 # View for viewing completed waste requests
 @role_required(allowed_roles=['admin'])
 def view_completed_requests(request):
-    # Fetch all completed waste requests ordered by creation date
     completed_requests = WasteRequest.objects.filter(status="Completed").order_by("-created_at")  # Get completed requests in descending order of creation date
-    # Create a context dictionary to pass data to the template
     context = {"completed_requests": completed_requests}
-    # Render the completed requests template with the context data
     return render(request, "adminapp/completed_requests.html", context)
 
-
-
-
-# View for managing users
-# View for managing users (excluding superusers and drivers)
 @role_required(allowed_roles=['admin'])
 def manage_users(request):
-    # Fetch all users excluding superusers and drivers
     users = User.objects.filter(is_superuser=False).exclude(driver_profile__isnull=False)
-    # Prepare context
     context = {"users": users}
-    # Render the manage_users template
     return render(request, "adminapp/manage_users.html", context)
 
-
-
-# View for toggling a user's active status
 @role_required(allowed_roles=['admin'])
 def toggle_user_status(request, user_id):
     # Toggle the active status of a user
@@ -182,15 +197,29 @@ def assign_driver(request, request_id):
     return render(request, "adminapp/assign_driver.html", context)
 
 
+@role_required(allowed_roles=['admin'])
+def mark_as_completed(request, request_id):
+    try:
+        # Fetch the specific request by ID and verify it belongs to the logged-in user
+        waste_request = WasteRequest.objects.get(id=request_id, status='Pending')
+        waste_request.updated_at = timezone.now()
+        waste_request.status = 'Completed'
+        waste_request.save()
+        messages.success(request, 'Request marked as completed.')
+    except WasteRequest.DoesNotExist:
+        messages.error(request, 'Request not found or already completed.')
+
+    return redirect('adminapp:view_completed_requests')
 
 # View for managing drivers
 @role_required(allowed_roles=['admin'])
 def manage_drivers(request):
-    # Fetch all drivers with an associated DriverProfile
     drivers = DriverProfile.objects.select_related('user').all()
-    # Prepare context
-    context = {"drivers": drivers}
-    # Render the manage_drivers template
+    assigned_requests_count = WasteRequest.objects.filter(status="Assigned").count()
+    context = {
+        "drivers": drivers,
+        "assigned_requests_count": assigned_requests_count
+    }
     return render(request, "adminapp/manage_drivers.html", context)
 
 

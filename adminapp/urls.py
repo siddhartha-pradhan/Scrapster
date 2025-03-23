@@ -19,6 +19,7 @@ urlpatterns = [
     path("toggle_user_status/<int:user_id>/", toggle_user_status, name="toggle_user_status"),
     path("delete_user/<int:user_id>/", delete_user, name="delete_user"),
     path("assign-driver/<int:request_id>/", views.assign_driver, name="assign_driver"),
+    path('mark_as_completed/<int:request_id>/', views.mark_as_completed, name='mark_as_completed'),
     path("manage_drivers/", views.manage_drivers, name="manage_drivers"),
     path('user/<int:user_id>/', views.user_detail, name='user_detail'),
 

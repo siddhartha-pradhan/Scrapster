@@ -1,38 +1,291 @@
 {% extends "base.html" %}
 
 {% block content %}
-<section class="py-12 bg-gray-50">
+
+<section class="bg-gradient-to-r from-primary to-secondary text-white py-20">
     <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-center text-gray-800 mb-8">About Our System</h2>
-        <p class="text-center text-gray-600 mb-12">
-            Our waste collection system is designed to help you efficiently manage your waste, reduce your environmental impact, and promote sustainability. 
-            We offer a range of features to streamline your waste collection processes, including:
-        </p>
-
-        <!-- Card Section -->
-        <div class="flex flex-wrap justify-center gap-8">
-            <!-- Card 1 -->
-            <div class="w-full md:w-1/3 bg-white shadow-lg rounded-lg p-6">
-                <h5 class="text-xl font-semibold text-gray-800 mb-4">Schedule Waste Pickups</h5>
-                <p class="text-gray-600">Easily schedule waste pickups for your convenience.</p>
+        <div class="flex flex-col md:flex-row items-center">
+            <div class="md:w-1/2 mb-10 md:mb-0">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 text-shadow">Smart Waste Management for a Cleaner Community</h1>
+                <p class="text-lg mb-8">Schedule pickups, report issues, and join community initiatives - all in one place.</p>
+                <div class="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-4">
+                    <a href="#register-resident" class="bg-white text-primary font-semibold px-6 py-3 rounded-lg text-center hover:bg-light transition-all">Register as Resident</a>
+                    <a href="#register-employee" class="bg-dark text-white font-semibold px-6 py-3 rounded-lg text-center hover:bg-opacity-80 transition-all">Join as Employee</a>
+                </div>
             </div>
-
-            <!-- Card 2 -->
-            <div class="w-full md:w-1/3 bg-white shadow-lg rounded-lg p-6">
-                <h5 class="text-xl font-semibold text-gray-800 mb-4">Track Waste Collection History</h5>
-                <p class="text-gray-600">Keep track of your waste collection history for better management.</p>
+            <div class="md:w-1/2">
+                <img src="https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80" alt="Waste Management" class="rounded-lg shadow-xl">
             </div>
+        </div>
+    </div>
+</section>
 
-            <!-- Card 3 -->
-            <div class="w-full md:w-1/3 bg-white shadow-lg rounded-lg p-6">
-                <h5 class="text-xl font-semibold text-gray-800 mb-4">Manage Multiple Collection Points</h5>
-                <p class="text-gray-600">Manage waste collection for multiple locations with ease.</p>
+<section id="features" class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Smart Features for Efficient Waste Management</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div class="bg-light rounded-lg p-6 shadow-md hover:shadow-lg transition-all">
+                <div class="bg-primary text-white rounded-full w-12 h-12 flex items-center justify-center mb-4">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 text-gray-800">Registration & Approval</h3>
+                <p class="text-gray-600">Register as a resident or employee. Admin approval ensures security and verification.</p>
+            </div>
+            <div class="bg-light rounded-lg p-6 shadow-md hover:shadow-lg transition-all">
+                <div class="bg-primary text-white rounded-full w-12 h-12 flex items-center justify-center mb-4">
+                    <i class="fas fa-id-card"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 text-gray-800">Profile Management</h3>
+                <p class="text-gray-600">Create and update your profile with personal data and service history.</p>
+            </div>
+            <div class="bg-light rounded-lg p-6 shadow-md hover:shadow-lg transition-all">
+                <div class="bg-primary text-white rounded-full w-12 h-12 flex items-center justify-center mb-4">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 text-gray-800">Pickup Scheduling</h3>
+                <p class="text-gray-600">Easily schedule or modify your garbage pickup times with a few clicks.</p>
+            </div>
+            <div class="bg-light rounded-lg p-6 shadow-md hover:shadow-lg transition-all">
+                <div class="bg-primary text-white rounded-full w-12 h-12 flex items-center justify-center mb-4">
+                    <i class="fas fa-plus-circle"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 text-gray-800">Additional Requests</h3>
+                <p class="text-gray-600">Request additional pickups or cancel existing ones when needed.</p>
+            </div>
+            <div class="bg-light rounded-lg p-6 shadow-md hover:shadow-lg transition-all">
+                <div class="bg-primary text-white rounded-full w-12 h-12 flex items-center justify-center mb-4">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 text-gray-800">Missed Pickup Reporting</h3>
+                <p class="text-gray-600">Report any missed pickups through our customer service feature.</p>
+            </div>
+            <div class="bg-light rounded-lg p-6 shadow-md hover:shadow-lg transition-all">
+                <div class="bg-primary text-white rounded-full w-12 h-12 flex items-center justify-center mb-4">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 text-gray-800">Reminders & Alerts</h3>
+                <p class="text-gray-600">Get automated email or SMS alerts for missed or upcoming pickups.</p>
+            </div>
+            <div class="bg-light rounded-lg p-6 shadow-md hover:shadow-lg transition-all">
+                <div class="bg-primary text-white rounded-full w-12 h-12 flex items-center justify-center mb-4">
+                    <i class="fas fa-lightbulb"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 text-gray-800">Waste Management Tips</h3>
+                <p class="text-gray-600">Access helpful tips and advice for reducing and managing waste efficiently.</p>
+            </div>
+            <div class="bg-light rounded-lg p-6 shadow-md hover:shadow-lg transition-all">
+                <div class="bg-primary text-white rounded-full w-12 h-12 flex items-center justify-center mb-4">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 text-gray-800">Community Initiatives</h3>
+                <p class="text-gray-600">Stay informed about neighborhood recycling programs and local efforts.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">How It Works</h2>
+        <div class="flex flex-col md:flex-row items-center justify-center space-y-8 md:space-y-0 md:space-x-8">
+            <div class="bg-white rounded-lg p-6 shadow-md max-w-xs text-center">
+                <div class="bg-primary text-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
+                    <span class="font-bold">1</span>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 text-gray-800">Register</h3>
+                <p class="text-gray-600">Create your account as a resident or employee and get approved.</p>
+            </div>
+            <div class="bg-white rounded-lg p-6 shadow-md max-w-xs text-center">
+                <div class="bg-primary text-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
+                    <span class="font-bold">2</span>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 text-gray-800">Schedule</h3>
+                <p class="text-gray-600">Set up your regular pickup schedule or request additional services.</p>
+            </div>
+            <div class="bg-white rounded-lg p-6 shadow-md max-w-xs text-center">
+                <div class="bg-primary text-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
+                    <span class="font-bold">3</span>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 text-gray-800">Manage</h3>
+                <p class="text-gray-600">Receive reminders, report issues, and track your waste management.</p>
+            </div>
+            <div class="bg-white rounded-lg p-6 shadow-md max-w-xs text-center">
+                <div class="bg-primary text-white rounded-full w-12 h-12 flex items-center justify-center mx-auto mb-4">
+                    <span class="font-bold">4</span>
+                </div>
+                <h3 class="text-xl font-semibold mb-2 text-gray-800">Engage</h3>
+                <p class="text-gray-600">Participate in community initiatives and learn waste reduction tips.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="tips" class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Waste Management Tips</h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all">
+                <img src="https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80" alt="Recycling" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800">Proper Recycling Techniques</h3>
+                    <p class="text-gray-600">Learn how to properly sort and prepare your recyclables to ensure they can be processed effectively.</p>
+                    <a href="#" class="inline-block mt-4 text-primary hover:text-dark font-medium">Read More →</a>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all">
+                <img src="https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80" alt="Composting" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800">Home Composting Guide</h3>
+                    <p class="text-gray-600">Discover how to start composting at home and reduce your food waste while creating nutrient-rich soil.</p>
+                    <a href="#" class="inline-block mt-4 text-primary hover:text-dark font-medium">Read More →</a>
+                </div>
+            </div>
+            <div class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-all">
+                <img src="https://images.unsplash.com/photo-1528323273322-d81458248d40?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=800&q=80" alt="Zero Waste" class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800">Zero Waste Lifestyle</h3>
+                    <p class="text-gray-600">Explore practical tips for reducing your waste footprint and moving towards a more sustainable lifestyle.</p>
+                    <a href="#" class="inline-block mt-4 text-primary hover:text-dark font-medium">Read More →</a>
+                </div>
             </div>
         </div>
 
-        <p class="text-center text-gray-600 mt-12">
-            Join us today and make a positive impact on the environment!
-        </p>
+        <div class="text-center mt-10">
+            <a href="#" class="bg-primary text-white px-6 py-3 rounded-lg hover:bg-dark transition-all inline-block">View All Tips</a>
+        </div>
+    </div>
+</section>
+
+<section id="community" class="py-16 bg-white">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">Community Initiatives</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="flex bg-light rounded-lg overflow-hidden shadow-md">
+                <div class="w-1/3 bg-primary flex items-center justify-center p-6">
+                    <i class="fas fa-tree text-white text-5xl"></i>
+                </div>
+                <div class="w-2/3 p-6">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800">Community Cleanup Day</h3>
+                    <p class="text-gray-600 mb-4">Join us for our monthly community cleanup event. Together, we can make a difference!</p>
+                    <div class="flex items-center text-gray-500">
+                        <i class="far fa-calendar-alt mr-2"></i>
+                        <span>Every first Saturday of the month</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex bg-light rounded-lg overflow-hidden shadow-md">
+                <div class="w-1/3 bg-primary flex items-center justify-center p-6">
+                    <i class="fas fa-recycle text-white text-5xl"></i>
+                </div>
+                <div class="w-2/3 p-6">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800">Recycling Workshop</h3>
+                    <p class="text-gray-600 mb-4">Learn creative ways to reuse and recycle common household items.</p>
+                    <div class="flex items-center text-gray-500">
+                        <i class="far fa-calendar-alt mr-2"></i>
+                        <span>Every third Thursday at 6 PM</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex bg-light rounded-lg overflow-hidden shadow-md">
+                <div class="w-1/3 bg-primary flex items-center justify-center p-6">
+                    <i class="fas fa-seedling text-white text-5xl"></i>
+                </div>
+                <div class="w-2/3 p-6">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800">Community Garden</h3>
+                    <p class="text-gray-600 mb-4">Participate in our community garden project using compost from local waste.</p>
+                    <div class="flex items-center text-gray-500">
+                        <i class="far fa-calendar-alt mr-2"></i>
+                        <span>Ongoing project - Join anytime</span>
+                    </div>
+                </div>
+            </div>
+            <div class="flex bg-light rounded-lg overflow-hidden shadow-md">
+                <div class="w-1/3 bg-primary flex items-center justify-center p-6">
+                    <i class="fas fa-chalkboard-teacher text-white text-5xl"></i>
+                </div>
+                <div class="w-2/3 p-6">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-800">School Education Program</h3>
+                    <p class="text-gray-600 mb-4">Volunteer to teach local students about waste management and environmental care.</p>
+                    <div class="flex items-center text-gray-500">
+                        <i class="far fa-calendar-alt mr-2"></i>
+                        <span>School term program - See schedule</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-center mb-12 text-gray-800">What Our Users Say</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="bg-white rounded-lg p-6 shadow-md">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold mr-4">JD</div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800">John Doe</h4>
+                        <p class="text-gray-500 text-sm">Resident</p>
+                    </div>
+                </div>
+                <p class="text-gray-600 italic">"The scheduling system is so convenient! I love getting reminders before pickup day, and reporting a missed pickup was quick and easy."</p>
+                <div class="mt-4 text-yellow-400">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg p-6 shadow-md">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold mr-4">JS</div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800">Jane Smith</h4>
+                        <p class="text-gray-500 text-sm">Community Leader</p>
+                    </div>
+                </div>
+                <p class="text-gray-600 italic">"The community initiatives section has helped us organize several successful neighborhood cleanup events. It's bringing our community together!"</p>
+                <div class="mt-4 text-yellow-400">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star-half-alt"></i>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg p-6 shadow-md">
+                <div class="flex items-center mb-4">
+                    <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center text-white font-bold mr-4">RJ</div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800">Robert Johnson</h4>
+                        <p class="text-gray-500 text-sm">Waste Collection Employee</p>
+                    </div>
+                </div>
+                <p class="text-gray-600 italic">"As an employee, the system makes my job much easier. I can see my schedule clearly and communicate with residents when needed."</p>
+                <div class="mt-4 text-yellow-400">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="py-16 bg-gradient-to-r from-primary to-secondary text-white">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl font-bold mb-6">Ready to Join Our Waste Management System?</h2>
+        <p class="text-lg mb-8 max-w-2xl mx-auto">Register today and be part of our community's effort to create a cleaner, greener environment for everyone.</p>
+        <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+            <a href="#register-resident" class="bg-white text-primary font-semibold px-8 py-3 rounded-lg hover:bg-light transition-all">Register as Resident</a>
+            <a href="#register-employee" class="bg-dark text-white font-semibold px-8 py-3 rounded-lg hover:bg-opacity-80 transition-all">Join as Employee</a>
+        </div>
     </div>
 </section>
 {% endblock %}

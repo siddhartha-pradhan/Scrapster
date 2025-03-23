@@ -1,8 +1,105 @@
-<div>
-    <h2 class="text-xl font-bold mb-4">User Details</h2>
-    <p><strong>Username:</strong> {{ user.username }}</p>
-    <p><strong>Email:</strong> {{ user.email }}</p>
-    <p><strong>First Name:</strong> {{ user.first_name }}</p>
-    <p><strong>Last Name:</strong> {{ user.last_name }}</p>
-    <p><strong>Is Active:</strong> {{ user.is_active }}</p>
+<div class="border-b border-gray-200 pb-4 mb-4">
+                <div class="flex items-center">
+                    <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mr-4">
+                        <i class="fas fa-user text-primary text-2xl"></i>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">{{ user.username }}</h2>
+                        <p class="text-gray-600">{{ user.email }}</p>
+                    </div>
+                </div>
+            </div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <div>
+        <h3 class="text-lg font-semibold text-gray-800 mb-3">User Information</h3>
+        <div class="space-y-3">
+            <div>
+                <p class="text-sm text-gray-500">Full Name</p>
+                <p class="font-medium">{{ user.first_name }} {{ user.last_name }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Status</p>
+                <p class="font-medium">
+                    <span class="status-badge {% if user.is_active %}status-active{% else %}status-inactive{% endif %}">
+                        {% if user.is_active %}
+                        <i class="fas fa-circle text-xs mr-1"></i> Active
+                        {% else %}
+                        <i class="fas fa-circle text-xs mr-1"></i> Inactive
+                        {% endif %}
+                    </span>
+                </p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Date Joined</p>
+                <p class="font-medium">{{ user.date_joined|date:"F j, Y, g:i a" }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Last Login</p>
+                <p class="font-medium">{{ user.last_login|date:"F j, Y, g:i a"|default:"Never logged in" }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <h3 class="text-lg font-semibold text-gray-800 mb-3">Activity Summary</h3>
+        <div class="space-y-3">
+            <div>
+                <p class="text-sm text-gray-500">Total Waste Requests</p>
+                <p class="font-medium">{{ user.waste_requests.count }}</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Pending Requests</p>
+{#                            <p class="font-medium">{{ user.waste_requests.filter(status="Pending").count }}</p>#}
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Completed Requests</p>
+{#                            <p class="font-medium">{{ user.waste_requests.filter(status="Completed").count }}</p>#}
+            </div>
+            <div>
+                <p class="text-sm text-gray-500">Last Request</p>
+                <p class="font-medium">
+                    {% with last_request=user.waste_requests.last %}
+                        {% if last_request %}
+                            {{ last_request.created_at|date:"F j, Y" }}
+                        {% else %}
+                            No requests yet
+                        {% endif %}
+                    {% endwith %}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% if user.waste_requests.all %}
+<div class="mb-6">
+    <h3 class="text-lg font-semibold text-gray-800 mb-3">Recent Requests</h3>
+    <div class="bg-gray-50 rounded-lg p-4">
+        <div class="space-y-3">
+            {% for request in user.waste_requests.all|slice:":3" %}
+            <div class="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
+                <div>
+                    <p class="font-medium">{{ request.waste_type }} ({{ request.quantity }} kg)</p>
+                    <p class="text-sm text-gray-500">{{ request.created_at|date:"M d, Y" }}</p>
+                </div>
+                <span class="status-badge {% if request.status == 'Completed' %}status-active{% elif request.status == 'Pending' %}bg-yellow-100 text-yellow-800{% endif %}">
+                    {{ request.status }}
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+<div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+    <a href="{% url 'adminapp:toggle_user_status' user.id %}" class="bg-primary text-white py-2 px-4 rounded-lg hover:bg-dark transition-all">
+        {% if user.is_active %}
+        <i class="fas fa-ban mr-1"></i> Deactivate User
+        {% else %}
+        <i class="fas fa-check-circle mr-1"></i> Activate User
+        {% endif %}
+    </a>
+    <a href="{% url 'adminapp:delete_user' user.id %}" class="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-all"
+       onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.')">
+        <i class="fas fa-trash-alt mr-1"></i> Delete User
+    </a>
 </div>

@@ -2,73 +2,415 @@
 
 {% block title %}Pending Waste Collection Requests{% endblock %}
 
+{% block extra_css %}
+<style>
+    .request-card {
+        transition: all 0.2s ease;
+    }
+    .request-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    .status-unassigned {
+        background-color: rgba(245, 158, 11, 0.1);
+        color: #F59E0B;
+    }
+    .status-assigned {
+        background-color: rgba(37, 99, 235, 0.1);
+        color: #2563EB;
+    }
+    .waste-icon {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+    }
+    .waste-paper {
+        background-color: #E8F5E9;
+        color: #2E7D32;
+    }
+    .waste-plastic {
+        background-color: #E3F2FD;
+        color: #1565C0;
+    }
+    .waste-glass {
+        background-color: #F3E5F5;
+        color: #7B1FA2;
+    }
+    .waste-metal {
+        background-color: #EEEEEE;
+        color: #424242;
+    }
+    .waste-electronic {
+        background-color: #FFF3E0;
+        color: #E65100;
+    }
+    .waste-organic {
+        background-color: #DCEDC8;
+        color: #33691E;
+    }
+    .waste-other {
+        background-color: #FFEBEE;
+        color: #C62828;
+    }
+    .tab-button {
+        padding: 0.75rem 1.5rem;
+        font-weight: 500;
+        border-bottom: 2px solid transparent;
+        transition: all 0.2s ease;
+    }
+    .tab-button.active {
+        border-bottom-color: #2E7D32;
+        color: #2E7D32;
+    }
+    .search-input:focus {
+        box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2);
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mx-auto mt-8 p-4 bg-gray-50 rounded-lg shadow-md">
-    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Pending Waste Collection Requests</h2>
+<div class="bg-white rounded-xl shadow-md p-6 mb-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800">Pending Waste Collection Requests</h2>
+            <p class="text-gray-600 mt-1">Manage and assign waste collection requests</p>
+        </div>
 
-    <!-- Section for Unassigned Requests -->
-    <h3 class="text-xl font-semibold mb-4 text-gray-700">Unassigned Requests</h3>
-    {% if unassigned_requests %}
-        <table class="min-w-full bg-white shadow rounded-lg mb-8">
-            <thead class="bg-gray-100">
-                <tr>
-                    <th class="py-2 px-4 text-left">User</th>
-                    <th class="py-2 px-4 text-left">Waste Type</th>
-                    <th class="py-2 px-4 text-left">Quantity (kg)</th>
-                    <th class="py-2 px-4 text-left">Requested On</th>
-                    <th class="py-2 px-4 text-left">Location</th>
-                    <th class="py-2 px-4 text-left">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for request in unassigned_requests %}
-                    <tr class="border-t hover:bg-gray-200">
-                        <td class="py-2 px-4">{{ request.user.username }}</td>
-                        <td class="py-2 px-4">{{ request.waste_type }}</td>
-                        <td class="py-2 px-4">{{ request.quantity }}</td>
-                        <td class="py-2 px-4">{{ request.requested_on }}</td>
-                        <td class="py-2 px-4">{{ request.collection_location }}</td>
-                        <td class="py-2 px-4">
-                            <a href="{% url 'adminapp:assign_driver' request.id %}" class="text-blue-600 hover:underline">Assign Driver</a> |
-                            <a href="{% url 'adminapp:reject_request' request.id %}" class="text-red-600 hover:text-red-800">Reject</a>
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p class="text-gray-600 mt-4 text-center">No unassigned requests found.</p>
-    {% endif %}
+        <div class="mt-4 md:mt-0 flex flex-col sm:flex-row gap-3">
+            <div class="relative">
+                <input type="text" id="searchInput" placeholder="Search requests..."
+                       class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary search-input">
+                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+            </div>
 
-    <!-- Section for Assigned Requests -->
-    <h3 class="text-xl font-semibold mb-4 text-gray-700">Assigned Requests</h3>
-    {% if assigned_requests %}
-        <table class="min-w-full bg-white shadow rounded-lg">
-            <thead class="bg-gray-100">
-                <tr>
-                    <th class="py-2 px-4 text-left">User</th>
-                    <th class="py-2 px-4 text-left">Waste Type</th>
-                    <th class="py-2 px-4 text-left">Quantity (kg)</th>
-                    <th class="py-2 px-4 text-left">Requested On</th>
-                    <th class="py-2 px-4 text-left">Location</th>
-                    <th class="py-2 px-4 text-left">Assigned Driver</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for request in assigned_requests %}
-                    <tr class="border-t hover:bg-gray-200">
-                        <td class="py-2 px-4">{{ request.user.username }}</td>
-                        <td class="py-2 px-4">{{ request.waste_type }}</td>
-                        <td class="py-2 px-4">{{ request.quantity }}</td>
-                        <td class="py-2 px-4">{{ request.requested_on }}</td>
-                        <td class="py-2 px-4">{{ request.collection_location }}</td>
-                        <td class="py-2 px-4">{{ request.driver.username }}</td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-    {% else %}
-        <p class="text-gray-600 mt-4 text-center">No assigned requests found.</p>
-    {% endif %}
+            <select id="wasteTypeFilter" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary">
+                <option value="all">All Waste Types</option>
+                <option value="Paper & Cardboard">Paper & Cardboard</option>
+                <option value="Plastic">Plastic</option>
+                <option value="Glass">Glass</option>
+                <option value="Metal">Metal</option>
+                <option value="Electronic Waste">Electronic Waste</option>
+                <option value="Organic Waste">Organic Waste</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <div class="bg-light rounded-lg p-4">
+            <div class="flex items-center">
+                <div class="bg-primary/20 p-3 rounded-full mr-4">
+                    <i class="fas fa-recycle text-primary"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Total Pending</p>
+                    <h3 class="text-xl font-bold text-gray-800">{{ unassigned_requests|length|add:assigned_requests|length }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-light rounded-lg p-4">
+            <div class="flex items-center">
+                <div class="bg-yellow-500/20 p-3 rounded-full mr-4">
+                    <i class="fas fa-clock text-yellow-500"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Unassigned</p>
+                    <h3 class="text-xl font-bold text-gray-800">{{ unassigned_requests|length }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-light rounded-lg p-4">
+            <div class="flex items-center">
+                <div class="bg-blue-500/20 p-3 rounded-full mr-4">
+                    <i class="fas fa-truck text-blue-500"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Assigned</p>
+                    <h3 class="text-xl font-bold text-gray-800">{{ assigned_requests|length }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-light rounded-lg p-4">
+            <div class="flex items-center">
+                <div class="bg-green-500/20 p-3 rounded-full mr-4">
+                    <i class="fas fa-weight-hanging text-green-500"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Total Weight</p>
+                    <h3 class="text-xl font-bold text-gray-800">
+                        {% with total_weight=0 %}
+                            {% for request in unassigned_requests %}
+                                {% with total_weight=total_weight|add:request.quantity %}{% endwith %}
+                            {% endfor %}
+                            {% for request in assigned_requests %}
+                                {% with total_weight=total_weight|add:request.quantity %}{% endwith %}
+                            {% endfor %}
+                            {{ total_weight }} kg
+                        {% endwith %}
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="border-b border-gray-200 mb-6">
+        <div class="flex overflow-x-auto">
+            <button class="tab-button active" data-tab="unassigned">
+                <i class="fas fa-clock mr-2 text-yellow-500"></i> Unassigned Requests
+            </button>
+            <button class="tab-button" data-tab="assigned">
+                <i class="fas fa-truck mr-2 text-blue-500"></i> Assigned Requests
+            </button>
+        </div>
+    </div>
+
+    <!-- Unassigned Requests Tab -->
+    <div id="unassigned-tab" class="tab-content">
+        {% if unassigned_requests %}
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="unassignedRequestsList">
+            {% for request in unassigned_requests %}
+            <div class="request-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm"
+                 data-waste-type="{{ request.waste_type }}">
+                <div class="p-5">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center">
+                            <div class="waste-icon
+                                        {% if 'Paper' in request.waste_type %}waste-paper
+                                        {% elif 'Plastic' in request.waste_type %}waste-plastic
+                                        {% elif 'Glass' in request.waste_type %}waste-glass
+                                        {% elif 'Metal' in request.waste_type %}waste-metal
+                                        {% elif 'Electronic' in request.waste_type %}waste-electronic
+                                        {% elif 'Organic' in request.waste_type %}waste-organic
+                                        {% else %}waste-other{% endif %} mr-3">
+                                <i class="fas
+                                          {% if 'Paper' in request.waste_type %}fa-newspaper
+                                          {% elif 'Plastic' in request.waste_type %}fa-wine-bottle
+                                          {% elif 'Glass' in request.waste_type %}fa-glass
+                                          {% elif 'Metal' in request.waste_type %}fa-utensils
+                                          {% elif 'Electronic' in request.waste_type %}fa-laptop
+                                          {% elif 'Organic' in request.waste_type %}fa-leaf
+                                          {% else %}fa-trash{% endif %}"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-800">{{ request.waste_type }}</h3>
+                                <p class="text-sm text-gray-500">{{ request.quantity }} kg</p>
+                            </div>
+                        </div>
+                        <span class="status-badge status-unassigned">
+                            <i class="fas fa-clock text-xs mr-1"></i> Unassigned
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Requested By</p>
+                            <p class="font-medium">{{ request.user.username }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Requested Date</p>
+                            <p class="font-medium">{{ request.created_at }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Collection Time</p>
+                            <p class="font-medium">{{ request.collection_time }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Collection Location</p>
+                            <p class="font-medium">{{ request.collection_location }}</p>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-100 pt-4 mt-2">
+                        <div class="flex space-x-2">
+                            <a href="{% url 'adminapp:assign_driver' request.id %}"
+                               class="flex-1 bg-primary text-white py-2 px-3 rounded-lg hover:bg-dark text-center action-button">
+                                <i class="fas fa-user-plus mr-1"></i> Assign Driver
+                            </a>
+                            <a href="{% url 'adminapp:reject_request' request.id %}"
+                               class="flex-1 bg-red-500/10 text-red-600 py-2 px-3 rounded-lg hover:bg-red-500/20 text-center action-button"
+                               onclick="return confirm('Are you sure you want to reject this request?')">
+                                <i class="fas fa-times-circle mr-1"></i> Reject
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-12 bg-light rounded-lg">
+            <div class="w-16 h-16 bg-yellow-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-clock text-yellow-500 text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-medium text-gray-800 mb-2">No Unassigned Requests</h3>
+            <p class="text-gray-600 mb-6">There are no unassigned waste collection requests at the moment.</p>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Assigned Requests Tab -->
+    <div id="assigned-tab" class="tab-content hidden">
+        {% if assigned_requests %}
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="assignedRequestsList">
+            {% for request in assigned_requests %}
+            <div class="request-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm"
+                 data-waste-type="{{ request.waste_type }}">
+                <div class="p-5">
+                    <div class="flex items-start justify-between mb-4">
+                        <div class="flex items-center">
+                            <div class="waste-icon
+                                        {% if 'Paper' in request.waste_type %}waste-paper
+                                        {% elif 'Plastic' in request.waste_type %}waste-plastic
+                                        {% elif 'Glass' in request.waste_type %}waste-glass
+                                        {% elif 'Metal' in request.waste_type %}waste-metal
+                                        {% elif 'Electronic' in request.waste_type %}waste-electronic
+                                        {% elif 'Organic' in request.waste_type %}waste-organic
+                                        {% else %}waste-other{% endif %} mr-3">
+                                <i class="fas
+                                          {% if 'Paper' in request.waste_type %}fa-newspaper
+                                          {% elif 'Plastic' in request.waste_type %}fa-wine-bottle
+                                          {% elif 'Glass' in request.waste_type %}fa-glass
+                                          {% elif 'Metal' in request.waste_type %}fa-utensils
+                                          {% elif 'Electronic' in request.waste_type %}fa-laptop
+                                          {% elif 'Organic' in request.waste_type %}fa-leaf
+                                          {% else %}fa-trash{% endif %}"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-semibold text-gray-800">{{ request.waste_type }}</h3>
+                                <p class="text-sm text-gray-500">{{ request.quantity }} kg</p>
+                            </div>
+                        </div>
+                        <span class="status-badge status-assigned">
+                            <i class="fas fa-truck text-xs mr-1"></i> Assigned
+                        </span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Requested By</p>
+                            <p class="font-medium">{{ request.user.username }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Requested On</p>
+                            <p class="font-medium">{{ request.created_at|date:"M d, Y" }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Collection Location</p>
+                            <p class="font-medium">{{ request.collection_location }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500 mb-1">Assigned Driver</p>
+                            <p class="font-medium flex items-center">
+                                <i class="fas fa-user-tie text-primary text-xs mr-1"></i>
+                                {{ request.driver.username }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="border-t border-gray-100 pt-4 mt-2">
+                        <div class="flex space-x-2">
+                            <a href="{% url 'adminapp:assign_driver' request.id %}"
+                               class="flex-1 bg-blue-500/10 text-blue-600 py-2 px-3 rounded-lg hover:bg-blue-500/20 text-center action-button">
+                                <i class="fas fa-exchange-alt mr-1"></i> Reassign
+                            </a>
+                            <a href="{% url 'adminapp:mark_as_completed' request.id %}"
+                               class="flex-1 bg-green-500/10 text-green-600 py-2 px-3 rounded-lg hover:bg-green-500/20 text-center action-button">
+                                <i class="fas fa-check-circle mr-1"></i> Complete
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-12 bg-light rounded-lg">
+            <div class="w-16 h-16 bg-blue-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-truck text-blue-500 text-2xl"></i>
+            </div>
+            <h3 class="text-xl font-medium text-gray-800 mb-2">No Assigned Requests</h3>
+            <p class="text-gray-600 mb-6">There are no assigned waste collection requests at the moment.</p>
+        </div>
+        {% endif %}
+    </div>
 </div>
+
+<script>
+    // Tab switching
+    document.addEventListener('DOMContentLoaded', function() {
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+
+                // Add active class to clicked button
+                this.classList.add('active');
+
+                // Hide all tab contents
+                tabContents.forEach(content => content.classList.add('hidden'));
+
+                // Show the selected tab content
+                const tabId = this.dataset.tab + '-tab';
+                document.getElementById(tabId).classList.remove('hidden');
+            });
+        });
+
+        // Search and filter functionality
+        const searchInput = document.getElementById('searchInput');
+        const wasteTypeFilter = document.getElementById('wasteTypeFilter');
+        const unassignedCards = document.querySelectorAll('#unassignedRequestsList .request-card');
+        const assignedCards = document.querySelectorAll('#assignedRequestsList .request-card');
+
+        function filterCards(cards) {
+            const searchTerm = searchInput.value.toLowerCase();
+            const wasteType = wasteTypeFilter.value;
+
+            cards.forEach(card => {
+                const cardWasteType = card.dataset.wasteType;
+                const username = card.querySelector('p.font-medium').textContent.toLowerCase();
+                const location = card.querySelectorAll('p.font-medium')[2].textContent.toLowerCase();
+
+                const matchesSearch = username.includes(searchTerm) ||
+                                     location.includes(searchTerm) ||
+                                     cardWasteType.toLowerCase().includes(searchTerm);
+
+                const matchesWasteType = wasteType === 'all' || cardWasteType === wasteType;
+
+                if (matchesSearch && matchesWasteType) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        searchInput.addEventListener('input', function() {
+            filterCards(unassignedCards);
+            filterCards(assignedCards);
+        });
+
+        wasteTypeFilter.addEventListener('change', function() {
+            filterCards(unassignedCards);
+            filterCards(assignedCards);
+        });
+    });
+</script>
 {% endblock %}

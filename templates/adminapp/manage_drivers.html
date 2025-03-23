@@ -1,40 +1,236 @@
 {% extends "adminapp/base.html" %}
 
+{% block title %}Manage Drivers{% endblock %}
+
+{% block extra_css %}
+<style>
+    .driver-card {
+        transition: all 0.2s ease;
+    }
+    .driver-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 500;
+    }
+    .status-active {
+        background-color: rgba(46, 125, 50, 0.1);
+        color: #2E7D32;
+    }
+    .status-inactive {
+        background-color: rgba(239, 68, 68, 0.1);
+        color: #EF4444;
+    }
+    .action-button {
+        transition: all 0.2s ease;
+    }
+    .action-button:hover {
+        transform: translateY(-1px);
+    }
+    .search-input:focus {
+        box-shadow: 0 0 0 2px rgba(46, 125, 50, 0.2);
+    }
+    .vehicle-tag {
+        display: inline-block;
+        background-color: #E8F5E9;
+        color: #2E7D32;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.75rem;
+        margin-right: 0.5rem;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mx-auto mt-8 p-4">
-    <h2 class="text-2xl font-bold mb-6">Manage Drivers</h2>
+<div class="bg-white rounded-xl shadow-md p-6 mb-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-6">
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800">Manage Drivers</h2>
+            <p class="text-gray-600 mt-1">View and manage all registered waste collection drivers</p>
+        </div>
+
+        <div class="mt-4 md:mt-0 flex flex-col sm:flex-row gap-3">
+            <div class="relative">
+                <input type="text" id="searchInput" placeholder="Search drivers..."
+                       class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:border-primary search-input">
+                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+        <div class="bg-light rounded-lg p-4">
+            <div class="flex items-center">
+                <div class="bg-primary/20 p-3 rounded-full mr-4">
+                    <i class="fas fa-user-tie text-primary"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Total Drivers</p>
+                    <h3 class="text-xl font-bold text-gray-800">{{ drivers|length }}</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-light rounded-lg p-4">
+            <div class="flex items-center">
+                <div class="bg-green-500/20 p-3 rounded-full mr-4">
+                    <i class="fas fa-truck text-green-500"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Active Drivers</p>
+{#                    <h3 class="text-xl font-bold text-gray-800">{{ drivers|filter_active_drivers|length }}</h3>#}
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-light rounded-lg p-4">
+            <div class="flex items-center">
+                <div class="bg-blue-500/20 p-3 rounded-full mr-4">
+                    <i class="fas fa-route text-blue-500"></i>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Assigned Requests</p>
+                    <h3 class="text-xl font-bold text-gray-800">{{ assigned_requests_count }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
 
     {% if drivers %}
-    <table class="min-w-full bg-white shadow rounded-lg">
-        <thead class="bg-gray-100">
-            <tr>
-                <th class="py-2 px-4 text-left">Driver Name</th>
-                <th class="py-2 px-4 text-left">Email</th>
-                <th class="py-2 px-4 text-left">License Number</th>
-                <th class="py-2 px-4 text-left">Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for driver in drivers %}
-                <tr class="border-t">
-                    <td class="py-2 px-4">{{ driver.user.username }}</td>
-                    <td class="py-2 px-4">{{ driver.user.email }}</td>
-                    <td class="py-2 px-4">{{ driver.license_number }}</td>
-                    <td class="py-2 px-4 flex space-x-2">
-                        <a href="{% url 'adminapp:toggle_user_status' driver.user.id %}" class="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-700">
-                            {% if driver.user.is_active %} Deactivate {% else %} Activate {% endif %}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" id="driversList">
+        {% for driver in drivers %}
+        <div class="driver-card bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm" data-status="{{ driver.user.is_active|yesno:'active,inactive' }}">
+            <div class="p-5">
+                <div class="flex items-start justify-between mb-4">
+                    <div class="flex items-center">
+                        <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mr-3">
+                            <i class="fas fa-user-tie text-primary"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-semibold text-gray-800">{{ driver.user.username }}</h3>
+                            <p class="text-sm text-gray-500">{{ driver.user.email }}</p>
+                        </div>
+                    </div>
+                    <span class="status-badge {% if driver.user.is_active %}status-active{% else %}status-inactive{% endif %}">
+                        {% if driver.user.is_active %}
+                        <i class="fas fa-circle text-xs mr-1"></i> Active
+                        {% else %}
+                        <i class="fas fa-circle text-xs mr-1"></i> Inactive
+                        {% endif %}
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="text-xs text-gray-500 mb-1">License Number</p>
+                        <p class="font-medium">{{ driver.license_number }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-gray-500 mb-1">Phone</p>
+                        <p class="font-medium">{{ driver.phone_number }}</p>
+                    </div>
+                    <div class="col-span-2">
+                        <p class="text-xs text-gray-500 mb-1">Vehicle Details</p>
+                        <p class="font-medium">{{ driver.vehicle_details }}</p>
+                    </div>
+                    <div class="col-span-2">
+                        <p class="text-xs text-gray-500 mb-1">Address</p>
+                        <p class="font-medium text-sm">{{ driver.address }}</p>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-100 pt-4 mt-2">
+                    <div class="flex justify-between items-center mb-4">
+                        <div>
+                            <p class="text-xs text-gray-500">Assigned Requests</p>
+                            <p class="font-medium">{{ driver.user.assigned_tasks.count }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-gray-500">Joined</p>
+                            <p class="font-medium">{{ driver.created_at|date:"M d, Y" }}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex space-x-2">
+                        <a href="#"
+                           class="flex-1 bg-primary/10 text-primary py-2 px-3 rounded-lg hover:bg-primary/20 text-center action-button">
+                            <i class="fas fa-eye mr-1"></i> View
                         </a>
-                        <a href="{% url 'adminapp:delete_user' driver.user.id %}" class="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-700">
-                            Delete
+                        <a href="{% url 'adminapp:toggle_user_status' driver.user.id %}"
+                           class="flex-1 {% if driver.user.is_active %}bg-yellow-500/10 text-yellow-600{% else %}bg-green-500/10 text-green-600{% endif %} py-2 px-3 rounded-lg hover:bg-opacity-20 text-center action-button">
+                            {% if driver.user.is_active %}
+                            <i class="fas fa-ban mr-1"></i> Deactivate
+                            {% else %}
+                            <i class="fas fa-check-circle mr-1"></i> Activate
+                            {% endif %}
                         </a>
-                    </td>
-                </tr>
-            {% endfor %}
-        </tbody>
-    </table>
-    
+                        <a href="{% url 'adminapp:delete_user' driver.user.id %}"
+                           class="flex-1 bg-red-500/10 text-red-600 py-2 px-3 rounded-lg hover:bg-red-500/20 text-center action-button"
+                           onclick="return confirm('Are you sure you want to delete this driver?')">
+                            <i class="fas fa-trash-alt mr-1"></i> Delete
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination -->
+    <div class="mt-8 flex justify-center">
+        <nav class="inline-flex rounded-md shadow">
+            <a href="#" class="px-3 py-2 rounded-l-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50">Previous</a>
+            <a href="#" class="px-3 py-2 border-t border-b border-gray-300 bg-primary text-white">1</a>
+            <a href="#" class="px-3 py-2 border border-gray-300 bg-white text-gray-500 hover:bg-gray-50">2</a>
+            <a href="#" class="px-3 py-2 rounded-r-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50">Next</a>
+        </nav>
+    </div>
     {% else %}
-        <p class="text-gray-600 mt-4">No drivers found.</p>
+    <div class="text-center py-12 bg-light rounded-lg">
+        <div class="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-user-tie text-primary text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-medium text-gray-800 mb-2">No Drivers Found</h3>
+        <p class="text-gray-600 mb-6">There are no registered drivers in the system.</p>
+    </div>
     {% endif %}
 </div>
+
+<script>
+    // Search functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const searchInput = document.getElementById('searchInput');
+        const driverCards = document.querySelectorAll('.driver-card');
+
+        searchInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+
+            driverCards.forEach(card => {
+                const username = card.querySelector('h3').textContent.toLowerCase();
+                const email = card.querySelector('p').textContent.toLowerCase();
+                const licenseNumber = card.querySelectorAll('.font-medium')[0].textContent.toLowerCase();
+                const phone = card.querySelectorAll('.font-medium')[1].textContent.toLowerCase();
+
+                const matchesSearch = username.includes(searchTerm) ||
+                                     email.includes(searchTerm) ||
+                                     licenseNumber.includes(searchTerm) ||
+                                     phone.includes(searchTerm);
+
+                if (matchesSearch) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+</script>
 {% endblock %}

@@ -3,46 +3,128 @@
 {% block content %}
 <div class="space-y-8">
     <!-- User Profile Header -->
-    <h2 class="text-2xl font-semibold border-b pb-2">User Profile</h2>
+    <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-bold text-gray-800">User Profile</h2>
+        <a href="{% url 'profileapp:edit_profile' %}" class="flex items-center bg-primary hover:bg-dark text-white px-4 py-2 rounded-lg transition-colors duration-300">
+            <i class="fas fa-user-edit mr-2"></i>
+            Edit Profile
+        </a>
+    </div>
 
-    <!-- User Details -->
-    <div class="space-y-4">
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-                <p><span class="font-medium">Username:</span> {{ user.username }}</p>
-                <p><span class="font-medium">First Name:</span> {{ user.first_name }}</p>
-                <p><span class="font-medium">Last Name:</span> {{ user.last_name }}</p>
-                <p><span class="font-medium">Email:</span> {{ user.email }}</p>
-            </div>
-            {% if user.userprofile.profile_picture %}
-            <div>
-                <p class="font-medium">Profile Picture:</p>
-                <img src="{{ user.userprofile.profile_picture.url }}" alt="Profile Picture" class="w-24 h-24 rounded-full border">
-            </div>
-            {% endif %}
+    <!-- User Details Card -->
+    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+        <div class="bg-gradient-to-r from-primary to-secondary p-4 text-white">
+            <h3 class="font-semibold text-lg">Personal Information</h3>
         </div>
-        <!-- Edit Profile Link -->
-        <a href="{% url 'profileapp:edit_profile' %}" class="inline-block text-blue-500 hover:underline mt-4">Edit Profile</a>
+
+        <div class="p-6">
+            <div class="flex flex-col md:flex-row gap-8">
+                <div class="flex flex-col items-center">
+                    {% if userprofile.profile_picture %}
+                        <div class="w-32 h-32 rounded-full border-4 border-light overflow-hidden shadow-md">
+                            <img src="{{ userprofile.profile_picture.url }}" alt="Profile Picture" class="w-full h-full object-cover">
+                        </div>
+                    {% else %}
+                        <div class="w-32 h-32 rounded-full bg-light border-4 border-gray-100 flex items-center justify-center shadow-md">
+                            <i class="fas fa-user text-5xl text-gray-400"></i>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="flex-grow grid grid-cols-1 sm:grid-cols-2 gap-y-4">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 rounded-full bg-light flex items-center justify-center mr-3">
+                            <i class="fas fa-user text-primary"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Username</p>
+                            <p class="font-medium text-gray-800">{{ user.username }}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 rounded-full bg-light flex items-center justify-center mr-3">
+                            <i class="fas fa-signature text-primary"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Full Name</p>
+                            <p class="font-medium text-gray-800">{{ user.first_name|default:"Not provided" }} {{ user.last_name|default:"Not provided" }}</p>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 rounded-full bg-light flex items-center justify-center mr-3">
+                            <i class="fas fa-envelope text-primary"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Email</p>
+                            <p class="font-medium text-gray-800">{{ user.email|default:"Not provided" }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Saved Addresses Section -->
-    <div>
-        <h3 class="text-xl font-semibold border-b pb-2 mb-4">Saved Addresses</h3>
-        {% for address in addresses %}
-        <div class="p-4 border rounded shadow-sm mb-4">
-            <p class="font-medium">{{ address.address }} ({{ address.address_type }})</p>
-            <p>{{ address.city }}, {{ address.state }} - {{ address.postal_code }}</p>
-            {% if address.default %}
-            <span class="text-green-700 bg-green-100 px-2 py-1 rounded text-sm">Default Address</span>
-            {% else %}
-            <a href="{% url 'profileapp:set_default_address' address.id %}" class="text-blue-500 hover:underline text-sm">Set as Default</a>
-            {% endif %}
-            <a href="{% url 'profileapp:delete_address' address.id %}" class="text-red-500 hover:underline text-sm block mt-2">Delete Address</a>
+    <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+        <div class="bg-gradient-to-r from-primary to-secondary p-4 text-white flex justify-between items-center">
+            <h3 class="font-semibold text-lg">Saved Addresses</h3>
+            <a href="{% url 'profileapp:add_address' %}" class="bg-white text-primary hover:bg-light px-3 py-1 rounded-lg text-sm font-medium transition-colors duration-300 flex items-center">
+                <i class="fas fa-plus mr-1"></i> Add New
+            </a>
         </div>
-        {% empty %}
-        <p class="text-gray-700">No saved addresses. <a href="{% url 'profileapp:add_address' %}" class="text-blue-500 hover:underline">Add New Address</a></p>
-        {% endfor %}
-        <a href="{% url 'profileapp:add_address' %}" class="text-blue-500 hover:underline mt-4 block">Add New Address</a>
+
+        <div class="p-6">
+            {% if addresses %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {% for address in addresses %}
+                    <div class="bg-white rounded-lg border border-gray-200 hover:shadow-md transition-shadow duration-300 overflow-hidden">
+                        <div class="p-4 {% if address.default %}bg-light{% endif %}">
+                            <div class="flex items-start">
+                                <div class="bg-{% if address.default %}primary{% else %}gray-200{% endif %} text-{% if address.default %}white{% else %}gray-600{% endif %} p-2 rounded-lg mr-3">
+                                    <i class="fas fa-{% if address.address_type == 'Home' %}home{% elif address.address_type == 'Work' %}briefcase{% else %}map-marker-alt{% endif %}"></i>
+                                </div>
+                                <div class="flex-grow">
+                                    <div class="flex justify-between items-start">
+                                        <h4 class="font-medium text-gray-800">{{ address.address_type }}</h4>
+                                        {% if address.default %}
+                                            <span class="bg-primary text-white text-xs px-2 py-1 rounded-full">Default</span>
+                                        {% endif %}
+                                    </div>
+                                    <p class="text-gray-600 mt-1">{{ address.address }}</p>
+                                    <p class="text-gray-500 text-sm">{{ address.city }}, {{ address.state }} - {{ address.postal_code }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="px-4 py-2 bg-gray-50 border-t border-gray-100 flex justify-between">
+                            {% if not address.default %}
+                            <a href="{% url 'profileapp:set_default_address' address.id %}" class="text-primary hover:text-dark text-sm font-medium flex items-center">
+                                <i class="fas fa-check-circle mr-1"></i> Set Default
+                            </a>
+                            {% else %}
+                            <span class="text-gray-400 text-sm">Default Address</span>
+                            {% endif %}
+                            <a href="{% url 'profileapp:delete_address' address.id %}" class="text-red-500 hover:text-red-700 text-sm font-medium flex items-center">
+                                <i class="fas fa-trash-alt mr-1"></i> Delete
+                            </a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="bg-light rounded-lg p-6 text-center">
+                    <div class="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-3">
+                        <i class="fas fa-map-marker-alt text-gray-500 text-xl"></i>
+                    </div>
+                    <h4 class="text-gray-800 font-medium mb-2">No Addresses Found</h4>
+                    <p class="text-gray-600 mb-4">You haven't added any addresses yet.</p>
+                    <a href="{% url 'profileapp:add_address' %}" class="inline-flex items-center bg-primary hover:bg-dark text-white px-4 py-2 rounded-lg transition-colors duration-300">
+                        <i class="fas fa-plus mr-2"></i> Add New Address
+                    </a>
+                </div>
+            {% endif %}
+        </div>
     </div>
 </div>
 {% endblock %}
