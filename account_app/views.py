@@ -24,7 +24,7 @@ class CustomLoginView(LoginView):
             print(f"Logged-in user role: {user_profile.role}")
             
             if user_profile.role == 'driver':
-                return reverse_lazy('driverapp:profile')
+                return reverse_lazy('driverapp:dashboard')
             else:
                 return reverse_lazy('profileapp:user_profile')
 

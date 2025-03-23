@@ -10,6 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+# TODO: Implement Payment Gateway.
+# TODO: Tips Board and Community Initiatives.
+# TODO: Missing Pickups.
+
 from pathlib import Path
 # from decouple import config
 
