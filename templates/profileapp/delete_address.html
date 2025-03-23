@@ -1,0 +1,16 @@
+{% extends "profileapp/base.html" %}
+
+{% block content %}
+<div class="container mx-auto mt-8 p-4 max-w-md">
+    <h2 class="text-2xl font-bold mb-6">Delete Address</h2>
+
+    <p>Are you sure you want to delete this address?</p>
+    <p class="italic">{{ address.address_type }}: {{ address.address }}, {{ address.city }}, {{ address.state }} - {{ address.postal_code }}</p>
+
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit" class="bg-red-500 text-white p-2 rounded">Delete</button>
+        <a href="{% url 'profileapp:user_profile' %}" class="text-blue-500 ml-4">Cancel</a>
+    </form>
+</div>
+{% endblock %}

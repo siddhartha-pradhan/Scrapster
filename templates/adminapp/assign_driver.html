@@ -1,0 +1,22 @@
+{% extends "adminapp/base.html" %}
+
+{% block title %}Assign Driver{% endblock %}
+
+{% block content %}
+<div class="container mx-auto mt-8 p-4 bg-gray-50 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Assign Driver</h2>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="mb-4">
+            <label class="block text-gray-700">Select Driver:</label>
+            <select name="driver" class="w-full border rounded-lg p-2">
+                {% for driver in drivers %}
+                    <option value="{{ driver.user.id }}">{{ driver.user.username }} - {{ driver.license_number }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded-lg">Assign</button>
+    </form>
+</div>
+{% endblock %}

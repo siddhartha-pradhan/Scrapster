@@ -1,0 +1,70 @@
+{% extends "profileapp/base.html" %}
+{% load widget_tweaks %}
+{% block content %}
+<div class="container mx-auto mt-12 max-w-lg sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl shadow-lg p-6 bg-white rounded-lg">
+    <h2 class="text-3xl font-extrabold text-gray-800 mb-6 text-center">Submit Waste Collection Request</h2>
+    
+    <form method="POST" class="space-y-6">
+        {% csrf_token %}
+        
+        {% if form.errors %}
+            <div class="text-red-500 text-sm">
+                <ul>
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+        
+        <!-- Waste Type -->
+        <div>
+            <label for="waste_type" class="block text-sm font-medium text-gray-700">Waste Type</label>
+            {{ form.waste_type|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" }}
+        </div>
+        
+        <!-- Quantity -->
+        <div>
+            <label for="quantity" class="block text-sm font-medium text-gray-700">Quantity (in kg)</label>
+            {{ form.quantity|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" }}
+        </div>
+        
+        <!-- Collection Time -->
+        <div class="relative">
+            <label for="collection_time" class="block text-sm font-medium text-gray-700">Collection Time</label>
+            <input 
+                type="datetime-local"
+                name="collection_time"
+                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                min="{{ today }}"
+                aria-label="Select Collection Time"
+            />
+        </div>
+        
+        <!-- Address Selection -->
+        <div>
+            <label for="collection_location" class="block text-sm font-medium text-gray-700">Select Address</label>
+            {{ form.collection_location|add_class:"mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" }}
+            <p class="text-sm text-gray-500 mt-2">
+                If no address is selected, your default address will be used.
+            </p>
+        </div>
+        
+        <!-- Add New Address -->
+        <div class="text-right">
+            <a href="{% url 'profileapp:add_address' %}" class="text-blue-600 text-sm font-medium hover:underline">
+                + Add New Address
+            </a>
+        </div>
+
+        <!-- Submit Button -->
+        <div>
+            <button type="submit" class="w-full bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-300 ease-in-out">
+                Submit Request
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

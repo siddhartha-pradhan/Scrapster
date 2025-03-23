@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waste Management System</title>
+    
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs" defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+    <!-- Header Section -->
+    <header>
+        <nav class="bg-white shadow">
+            <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+                <a href="{% url 'home' %}" class="text-lg font-bold text-gray-800">Waste Management System</a>
+                <button 
+                    id="navbar-toggle"
+                    class="lg:hidden text-gray-800 hover:text-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                >
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                    </svg>
+                </button>
+                <div id="navbar" class="hidden lg:flex flex-col lg:flex-row lg:items-center space-y-4 lg:space-y-0 lg:space-x-4">
+                    {% if user.is_authenticated %}
+                    <a href="{% url 'logout_user' %}" class="text-gray-600 hover:text-gray-800">Logout</a>
+                    {% else %}
+                    <a href="{% url 'register_user' %}" class="text-gray-600 hover:text-gray-800">Register</a>
+                    <a href="{% url 'login_user' %}" class="text-gray-600 hover:text-gray-800">Login</a>
+                    {% endif %}
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-blue-600 text-white py-16">
+        <div class="container mx-auto px-4 text-center">
+            <h1 class="text-4xl font-bold mb-4">Efficient Waste Management Made Easy</h1>
+            <p class="text-lg mb-6">Join us in making your city cleaner and greener.</p>
+            <a href="{% url 'register_user' %}" class="bg-white text-blue-600 px-6 py-2 rounded-lg hover:bg-gray-200">
+                Get Started
+            </a>
+        </div>
+    </section>
+
+    <!-- Main Content Section -->
+    <main class="container mx-auto my-8 px-4">
+        <section x-data="{ message: '', showMessage: false }">
+            <div x-show="showMessage" class="bg-green-100 text-green-800 p-4 rounded-lg mb-4">
+                <span x-text="message"></span>
+            </div>
+            {% block content %}{% endblock %}
+        </section>
+    </main>
+
+    <!-- Footer Section -->
+    <footer class="bg-gray-800 py-6">
+        <div class="container mx-auto text-center text-white">
+            <p>&copy; 2024 Waste Management System. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Navbar toggle for mobile view
+        const navbarToggle = document.getElementById('navbar-toggle');
+        const navbar = document.getElementById('navbar');
+        navbarToggle.addEventListener('click', () => {
+            navbar.classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>

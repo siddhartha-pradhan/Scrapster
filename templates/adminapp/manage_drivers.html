@@ -1,0 +1,40 @@
+{% extends "adminapp/base.html" %}
+
+{% block content %}
+<div class="container mx-auto mt-8 p-4">
+    <h2 class="text-2xl font-bold mb-6">Manage Drivers</h2>
+
+    {% if drivers %}
+    <table class="min-w-full bg-white shadow rounded-lg">
+        <thead class="bg-gray-100">
+            <tr>
+                <th class="py-2 px-4 text-left">Driver Name</th>
+                <th class="py-2 px-4 text-left">Email</th>
+                <th class="py-2 px-4 text-left">License Number</th>
+                <th class="py-2 px-4 text-left">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for driver in drivers %}
+                <tr class="border-t">
+                    <td class="py-2 px-4">{{ driver.user.username }}</td>
+                    <td class="py-2 px-4">{{ driver.user.email }}</td>
+                    <td class="py-2 px-4">{{ driver.license_number }}</td>
+                    <td class="py-2 px-4 flex space-x-2">
+                        <a href="{% url 'adminapp:toggle_user_status' driver.user.id %}" class="bg-blue-500 text-white py-1 px-3 rounded hover:bg-blue-700">
+                            {% if driver.user.is_active %} Deactivate {% else %} Activate {% endif %}
+                        </a>
+                        <a href="{% url 'adminapp:delete_user' driver.user.id %}" class="bg-red-500 text-white py-1 px-3 rounded hover:bg-red-700">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    {% else %}
+        <p class="text-gray-600 mt-4">No drivers found.</p>
+    {% endif %}
+</div>
+{% endblock %}

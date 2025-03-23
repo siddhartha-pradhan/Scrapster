@@ -1,0 +1,38 @@
+{% extends "profileapp/base.html" %}
+
+{% block title %}My Completed Requests{% endblock %}
+
+{% block content %}
+<div class="container mx-auto mt-8 p-4 space-y-8">
+    <!-- Page Header -->
+    <h2 class="text-2xl font-bold border-b pb-2">My Completed Waste Collection Requests</h2>
+
+    {% if completed_requests %}
+    <ul class="space-y-6">
+        {% for request in completed_requests %}
+        <li class="p-6 bg-gray-50 shadow-lg rounded-lg">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <!-- Request Details -->
+                <div class="space-y-2">
+                    <p><strong>Waste Type:</strong> {{ request.waste_type }}</p>
+                    <p><strong>Quantity:</strong> {{ request.quantity }} kg</p>
+                    <p><strong>Collection Time:</strong> {{ request.collection_time }}</p>
+                    <p><strong>Location:</strong> {{ request.collection_location }}</p>
+                    <p><strong>Created At:</strong> {{ request.created_at|date:"F j, Y, g:i a" }}</p>
+                </div>
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
+    {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-12">
+        <p class="text-gray-600 text-lg">No completed requests found.</p>
+        <a href="{% url 'wasteapp:submit_request' %}" 
+           class="mt-4 inline-block bg-blue-500 text-white py-2 px-6 rounded-lg hover:bg-blue-700">
+            Submit a New Request
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
