@@ -160,10 +160,6 @@
                     </div>
 
                     <div class="flex space-x-2">
-                        <a href="#"
-                           class="flex-1 bg-primary/10 text-primary py-2 px-3 rounded-lg hover:bg-primary/20 text-center action-button">
-                            <i class="fas fa-eye mr-1"></i> View
-                        </a>
                         <a href="{% url 'adminapp:toggle_user_status' driver.user.id %}"
                            class="flex-1 {% if driver.user.is_active %}bg-yellow-500/10 text-yellow-600{% else %}bg-green-500/10 text-green-600{% endif %} py-2 px-3 rounded-lg hover:bg-opacity-20 text-center action-button">
                             {% if driver.user.is_active %}

@@ -63,6 +63,17 @@
             <div class="flex items-center space-x-4">
                 {% if user.is_authenticated %}
                 <a href="{% url 'logout_user' %}" class="text-primary hover:text-dark transition-all">Logout</a>
+                {% if user.is_superuser %}
+                <a href="{% url 'adminapp:dashboard' %}" class="text-primary hover:text-dark transition-all">Go to Admin Portal</a>
+                {% else %}
+                    {% with user_profile=user.userprofile %}
+                        {% if user_profile.role == "driver" %}
+                            <a href="{% url 'driverapp:dashboard' %}" class="text-primary hover:text-dark transition-all">Go to Driver Portal</a>
+                        {% else %}
+                            <a href="{% url 'profileapp:user_profile' %}" class="text-primary hover:text-dark transition-all">Go to Profile</a>
+                        {% endif %}
+                    {% endwith %}
+                {% endif %}
                 {% else %}
                 <a href="{% url 'login_user' %}" class="text-green hover:text-dark transition-all">Login</a>
                 <a href="{% url 'register_user' %}" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-dark transition-all">Sign Up</a>

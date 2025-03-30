@@ -176,8 +176,8 @@ def assign_driver(request, request_id):
         waste_request.save()  # Save the change without altering the status
 
         # Send an email notification to the driver
-        subject = "New Waste Collection Task Assigned"
-        message = (
+        subject_for_driver = "New Waste Collection Task Assigned"
+        message_for_driver = (
             f"Hello {driver.username},\n\n"
             f"You have been assigned a new waste collection task.\n\n"
             f"Details:\n"
@@ -190,11 +190,28 @@ def assign_driver(request, request_id):
             f"Thank you,\n"
             f"Waste Management Team"
         )
+        recipient_list_for_driver = [driver.email]
+
+        subject_for_resident = "Waste Collection Request Accepted"
+        message_for_resident = (
+            f"Hey {waste_request.user.first_name},\n\n"
+            f"Your request for {waste_request.waste_type} of {waste_request.quantity} at {waste_request.collection_location} on {waste_request.collection_time} has been accepted and assigned with a driver.\n\n"
+            f"Driver Details: \n"
+            f"Driver Name: {driver.get_full_name()} \n"
+            f"Driver Email: {driver.email} \n"
+            f"Click the link below to view the task in your dashboard:\n"
+            f"{request.build_absolute_uri('/waste/my_requests/')}\n\n"
+            f"Thank you,\n"
+            f"Waste Management Team"
+        )
+
+        recipient_list_for_resident = [waste_request.user.email]
+
         from_email = settings.DEFAULT_FROM_EMAIL
-        recipient_list = [driver.email]
-        print(driver.email)
+
         try:
-            send_mail(subject, message, from_email, recipient_list)
+            send_mail(subject_for_driver, message_for_driver, from_email, recipient_list_for_driver)
+            send_mail(subject_for_resident, message_for_resident, from_email, recipient_list_for_resident)
             messages.success(request, f"Driver {driver.username} assigned successfully. Email notification sent.")
         except Exception as e:
             messages.error(request, f"Driver {driver.username} assigned successfully, but email failed to send. Error: {e}")

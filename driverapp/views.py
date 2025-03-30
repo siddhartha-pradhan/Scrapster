@@ -108,4 +108,31 @@ def driver_dashboard(request):
 
 @role_required(allowed_roles=['driver'])
 def request_details(request):
-    return render(request, 'driverapp/request_details.html')
+    driver = request.user
+    today = timezone.now().date()
+
+    # Get filter value
+    selected_waste_type = request.GET.get('waste_type')
+
+    # Base queryset
+    base_tasks = WasteRequest.objects.filter(driver=driver).select_related('user', 'collection_location')
+
+    if selected_waste_type:
+        base_tasks = base_tasks.filter(waste_type__icontains=selected_waste_type)
+
+    assigned_tasks = base_tasks.filter(status='Pending').order_by('collection_time')
+    completed_tasks = base_tasks.filter(status='Completed').order_by('-updated_at')
+
+    today_count = assigned_tasks.filter(collection_time__date=today).count()
+    total_kg = completed_tasks.aggregate(total=Sum('quantity'))['total'] or 0
+
+    context = {
+        'assigned_tasks': assigned_tasks,
+        'completed_tasks': completed_tasks,
+        'today': today,
+        'today_count': today_count,
+        'total_kg': total_kg,
+        'selected_waste_type': selected_waste_type,
+    }
+
+    return render(request, 'driverapp/request_details.html', context)

@@ -43,12 +43,21 @@ def submit_waste_request(request):
 
             # Send email notification to admin
             pending_requests_url = request.build_absolute_uri(reverse('adminapp:manage_pending_requests'))
-            admin_email = "siddhartha.pradhan.ix@gmail.com"  # Replace with admin email address
+            admin_email = settings.EMAIL_ROOT_EMAIL  # Replace with admin email address
             send_mail(
                 subject="New Waste Collection Request Submitted",
                 message=f"A new waste collection request has been submitted. Check pending requests at {pending_requests_url}",
                 from_email=settings.EMAIL_HOST_USER,
                 recipient_list=[admin_email],
+                fail_silently=False,
+            )
+
+            pending_requests_url_for_resident = request.build_absolute_uri(reverse('wasteapp:my_requests'))
+            send_mail(
+                subject="New Waste Collection Request Submitted",
+                message=f"Your waste collection request has been submitted, please wait for some time till the administrator assigns a driver. Check pending requests at {pending_requests_url_for_resident}",
+                from_email=settings.EMAIL_HOST_USER,
+                recipient_list=[request.user.email],
                 fail_silently=False,
             )
 
