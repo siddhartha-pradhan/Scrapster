@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from .forms import WasteRequestForm
-from .models import WasteRequest
+from .models import WasteRequest, Complaint
 from profileapp.models import Address
 from account_app.decorators import role_required
 
@@ -10,9 +10,6 @@ from account_app.decorators import role_required
 from django.core.mail import send_mail
 from django.conf import settings
 from django.urls import reverse
-
-
-
 
 @role_required(allowed_roles=['user'])
 def submit_waste_request(request):
@@ -67,9 +64,11 @@ def my_requests(request):
     pending_requests = WasteRequest.objects.filter(user=request.user, status='Pending').order_by('-created_at')
 
     for waste_request in pending_requests:
-        waste_request.can_mark_complete = (
-                waste_request.driver is not None
-        )
+        waste_request.can_mark_complete = waste_request.driver is not None
+        waste_request.is_overdue = waste_request.collection_time < timezone.now()
+
+        complaint = Complaint.objects.filter(waste_request=waste_request).first()
+        waste_request.complaint = complaint  # will be None if not found
 
     context = {'pending_requests': pending_requests}
     return render(request, 'wasteapp/my_requests.html', context)
@@ -95,6 +94,10 @@ def mark_as_completed(request, request_id):
 def my_history(request):
     # Fetch only the completed requests of the logged-in user
     completed_requests = WasteRequest.objects.filter(user=request.user, status='Completed').order_by('-created_at')
+
+    for waste_request in completed_requests:
+        complaint = Complaint.objects.filter(waste_request=waste_request).first()
+        waste_request.complaint = complaint  # will be None if not found
 
     total_waste = 0
     total_collections = completed_requests.count()
@@ -154,3 +157,25 @@ def fetch_environmental_tips():
 def tips_page(request):
     tips = fetch_environmental_tips()
     return render(request, 'tips/tips_page.html', {'tips': tips})
+
+@role_required(allowed_roles=['user'])
+def submit_complaint(request):
+    waste_request_id = request.POST.get('waste_request_id')
+    category = request.POST.get('category')
+    description = request.POST.get('description')
+
+    try:
+        waste_request = WasteRequest.objects.get(id=waste_request_id, user=request.user)
+    except WasteRequest.DoesNotExist:
+        messages.error(request, "Invalid waste request.")
+        return redirect('wasteapp:my_requests')
+
+    Complaint.objects.create(
+        user=request.user,
+        waste_request=waste_request,
+        category=category,
+        description=description
+    )
+
+    messages.success(request, "Complaint submitted successfully.")
+    return redirect('wasteapp:my_requests')

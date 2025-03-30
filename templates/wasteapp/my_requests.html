@@ -90,6 +90,23 @@
                         <i class="fas fa-lock mr-2"></i> Cannot Mark Yet
                     </button>
                     {% endif %}
+
+                    {% if request.complaint %}
+                    <button type="button"
+                            class="open-complaint-view bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg text-sm ml-2"
+                            data-category="{{ request.complaint.get_category_display }}"
+                            data-description="{{ request.complaint.description }}"
+                            data-status="{{ request.complaint.status }}"
+                            data-response="{{ request.complaint.response|default:'No response yet' }}">
+                        <i class="fas fa-eye mr-1"></i> View Complaint
+                    </button>
+                    {%  else %}
+                    {% if request.is_overdue %}
+                        <button data-request-id="{{ request.id }}" class="open-complaint-modal bg-red-500 hover:bg-red-600 text-white py-2 px-6 rounded-lg transition-all flex items-center ml-2">
+                            <i class="fas fa-exclamation-triangle mr-2"></i> Mark Complaint
+                        </button>
+                    {% endif %}
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -108,5 +125,95 @@
         </a>
     </div>
     {% endif %}
+
+    <div id="complaintModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+        <div class="bg-white w-full max-w-lg rounded-lg shadow-lg p-6 relative">
+            <button id="closeModal" class="absolute top-3 right-4 text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+            <h3 class="text-lg font-bold mb-4 text-gray-800">Submit a Complaint</h3>
+            <form id="complaintForm" method="POST" action="{% url 'wasteapp:submit_complaint' %}">
+                {% csrf_token %}
+                <input type="hidden" name="waste_request_id" id="modalWasteRequestId">
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700">Category</label>
+                    <select name="category" required class="mt-1 block w-full border rounded p-2 border-gray-300">
+                        <option value="Delay">Delay in collection</option>
+                        <option value="Missed">Missed pickup</option>
+                        <option value="Rude">Rude behavior</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="mb-4">
+                    <label class="block text-sm font-medium text-gray-700">Description</label>
+                    <textarea name="description" rows="4" required class="mt-1 block w-full border rounded p-2 border-gray-300"></textarea>
+                </div>
+                <div class="text-right">
+                    <button type="submit" class="bg-primary hover:bg-dark text-white py-2 px-4 rounded">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="complaintViewModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+        <div class="bg-white w-full max-w-md rounded-lg shadow-lg p-6 relative">
+            <button id="closeComplaintModal" class="absolute top-3 right-4 text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+            <h3 class="text-lg font-bold mb-4 text-gray-800">Complaint Details</h3>
+            <div class="text-sm space-y-3">
+                <div>
+                    <span class="font-semibold text-gray-700">Category:</span>
+                    <span id="complaintCategory" class="text-gray-800"></span>
+                </div>
+                <div>
+                    <span class="font-semibold text-gray-700">Description:</span>
+                    <p id="complaintDescription" class="text-gray-800 mt-1"></p>
+                </div>
+                <div>
+                    <span class="font-semibold text-gray-700">Status:</span>
+                    <span id="complaintStatus" class="text-gray-800"></span>
+                </div>
+                <div>
+                    <span class="font-semibold text-gray-700">Response:</span>
+                    <p id="complaintResponse" class="text-gray-800 mt-1"></p>
+                </div>
+            </div>
+            <div class="mt-6 text-right">
+                <button id="closeComplaintFooter" class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded">Close</button>
+            </div>
+        </div>
+    </div>
 </div>
+
+<script>
+    document.querySelectorAll('.open-complaint-modal').forEach(button => {
+        button.addEventListener('click', () => {
+            const modal = document.getElementById('complaintModal');
+            const wasteRequestId = button.getAttribute('data-request-id');
+            document.getElementById('modalWasteRequestId').value = wasteRequestId;
+            modal.classList.remove('hidden');
+        });
+    });
+
+    document.getElementById('closeModal').addEventListener('click', () => {
+        document.getElementById('complaintModal').classList.add('hidden');
+    });
+
+    document.querySelectorAll('.open-complaint-view').forEach(button => {
+        button.addEventListener('click', () => {
+            document.getElementById('complaintCategory').textContent = button.dataset.category;
+            document.getElementById('complaintDescription').textContent = button.dataset.description;
+            document.getElementById('complaintStatus').textContent = button.dataset.status;
+            document.getElementById('complaintResponse').textContent = button.dataset.response;
+
+            document.getElementById('complaintViewModal').classList.remove('hidden');
+        });
+    });
+
+    document.getElementById('closeComplaintModal').addEventListener('click', () => {
+        document.getElementById('complaintViewModal').classList.add('hidden');
+    });
+
+    document.getElementById('closeComplaintFooter').addEventListener('click', () => {
+        document.getElementById('complaintViewModal').classList.add('hidden');
+    });
+</script>
+
 {% endblock %}

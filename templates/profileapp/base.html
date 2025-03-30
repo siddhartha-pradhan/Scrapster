@@ -4,7 +4,7 @@
     {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Scrapster - Smart Waste Management</title>
+    <title>Cleanovate - Smart Waste Management</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
@@ -58,7 +58,7 @@
             <div class="flex justify-between items-center">
                 <div class="flex items-center">
                     <i class="fas fa-recycle text-primary text-3xl mr-2"></i>
-                    <span class="font-bold text-2xl text-primary">Scrapster</span>
+                    <span class="font-bold text-2xl text-primary">Cleanovate</span>
                 </div>
                 <div class="hidden md:flex space-x-8">
                     <a href="#" class="text-gray-600 hover:text-primary transition-all">Home</a>
@@ -97,13 +97,13 @@
                         <li>
                             <a href="{% url 'wasteapp:my_requests' %}" class="flex items-center text-gray-700 hover:bg-light hover:text-primary rounded-lg px-4 py-3 transition-all">
                                 <i class="fas fa-clipboard-list w-5 mr-3 text-gray-500"></i>
-                                <span>My Requests</span>
+                                <span>My Pending Requests</span>
                             </a>
                         </li>
                         <li>
                             <a href="{% url 'wasteapp:my_history' %}" class="flex items-center text-gray-700 hover:bg-light hover:text-primary rounded-lg px-4 py-3 transition-all">
                                 <i class="fas fa-history w-5 mr-3 text-gray-500"></i>
-                                <span>My History</span>
+                                <span>My Completed Requests</span>
                             </a>
                         </li>
                         <li>

@@ -1,7 +1,7 @@
 # adminapp/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.admin.views.decorators import staff_member_required
-from wasteapp.models import WasteRequest
+from wasteapp.models import WasteRequest, Complaint
 from django.utils import timezone
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -74,6 +74,14 @@ def manage_pending_requests(request):
     # Separate requests into unassigned and assigned categories
     unassigned_requests = pending_requests.filter(driver__isnull=True)
     assigned_requests = pending_requests.filter(driver__isnull=False)
+
+    for waste_request in unassigned_requests:
+        complaint = Complaint.objects.filter(waste_request=waste_request).first()
+        waste_request.complaint = complaint  # will be None if not found
+
+    for waste_request in assigned_requests:
+        complaint = Complaint.objects.filter(waste_request=waste_request).first()
+        waste_request.complaint = complaint  # will be None if not found
 
     # Prepare context to pass to the template
     context = {

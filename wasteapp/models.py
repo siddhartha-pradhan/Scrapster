@@ -1,7 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
 from profileapp.models import Address
-# Create your models here.
 
 WASTE_TYPES = [
     ('Plastic', 'Plastic'),
@@ -24,3 +23,30 @@ class WasteRequest(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.waste_type} - ({self.status})"
+
+class Complaint(models.Model):
+    COMPLAINT_CATEGORIES = [
+        ('Delay', 'Delay in collection'),
+        ('Missed', 'Missed pickup'),
+        ('Rude', 'Rude behavior'),
+        ('Other', 'Other'),
+    ]
+
+    COMPLAINT_STATUS = [
+        ('Pending', 'Pending'),
+        ('In Progress', 'In Progress'),
+        ('Resolved', 'Resolved'),
+        ('Rejected', 'Rejected'),
+    ]
+
+    user = models.ForeignKey(User, related_name='complaints', on_delete=models.CASCADE)
+    waste_request = models.ForeignKey('WasteRequest', related_name='complaints', on_delete=models.CASCADE)
+    category = models.CharField(max_length=50, choices=COMPLAINT_CATEGORIES)
+    description = models.TextField()
+    status = models.CharField(max_length=20, choices=COMPLAINT_STATUS, default='Pending')
+    response = models.TextField(blank=True, null=True, help_text="Admin/driver response to the complaint.")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Complaint by {self.user.username} - {self.get_category_display()} ({self.status})"
