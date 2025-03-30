@@ -50,3 +50,12 @@ class Complaint(models.Model):
 
     def __str__(self):
         return f"Complaint by {self.user.username} - {self.get_category_display()} ({self.status})"
+
+class Payment(models.Model):
+    user = models.ForeignKey(User, related_name='payments', on_delete=models.CASCADE)
+    payment_for = models.DateField(help_text="Billing period (e.g. March 2025, stored as 2025-03-01)")
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    paid_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.user.username} - ₹{self.amount} for {self.payment_for.strftime('%B %Y')}"

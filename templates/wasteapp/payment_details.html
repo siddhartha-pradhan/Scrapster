@@ -1,0 +1,84 @@
+﻿{% extends "profileapp/base.html" %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-bold text-gray-800">
+            <i class="fas fa-receipt text-primary mr-2"></i> Payment History
+        </h2>
+        <button id="openPaymentModal" class="bg-primary hover:bg-dark text-white py-2 px-4 rounded-lg text-sm flex items-center">
+            <i class="fas fa-credit-card mr-2"></i> Make Payment
+        </button>
+    </div>
+
+    {% if payments %}
+    <div class="overflow-x-auto bg-white rounded-xl shadow-md border border-gray-100">
+        <table class="min-w-full divide-y divide-gray-200 text-sm">
+            <thead class="bg-light">
+                <tr>
+                    <th class="px-6 py-3 text-left font-semibold text-gray-600">#</th>
+                    <th class="px-6 py-3 text-left font-semibold text-gray-600">Billing Month</th>
+                    <th class="px-6 py-3 text-left font-semibold text-gray-600">Amount</th>
+                    <th class="px-6 py-3 text-left font-semibold text-gray-600">Paid On</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-100">
+                {% for payment in payments %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4">{{ forloop.counter }}</td>
+                    <td class="px-6 py-4">{{ payment.payment_for|date:"F Y" }}</td>
+                    <td class="px-6 py-4">₹{{ payment.amount }}</td>
+                    <td class="px-6 py-4">{{ payment.paid_at|date:"d M Y, h:i A" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="bg-white rounded-xl shadow-md p-8 text-center border border-gray-100">
+        <div class="w-16 h-16 bg-light rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-wallet text-2xl text-primary"></i>
+        </div>
+        <h3 class="text-xl font-medium text-gray-800 mb-2">No Payments Found</h3>
+        <p class="text-gray-600">Looks like you haven't made any payments yet.</p>
+    </div>
+    {% endif %}
+</div>
+
+<div id="paymentModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+    <div class="bg-white w-full max-w-md rounded-lg shadow-lg p-6 relative">
+        <button id="closePaymentModal" class="absolute top-3 right-4 text-gray-500 hover:text-gray-700 text-xl">&times;</button>
+        <h3 class="text-lg font-bold mb-4 text-gray-800">Confirm Payment</h3>
+        <p class="text-gray-700 mb-6">
+            Are you sure you want to continue with the payment for
+            <span class="font-semibold text-primary">{{ next_payment_date|date:"F Y" }}</span>?
+        </p>
+        <form method="POST" action="{% url 'wasteapp:initiate_payment' %}">
+            {% csrf_token %}
+            <input type="hidden" name="payment_for" value="{{ next_payment_date|date:'Y-m-d' }}">
+            <div class="flex justify-end space-x-2">
+                <button type="button" id="cancelPayment" class="bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded">
+                    Cancel
+                </button>
+                <button type="submit" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded">
+                    Confirm
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.getElementById('openPaymentModal').addEventListener('click', function () {
+        document.getElementById('paymentModal').classList.remove('hidden');
+    });
+
+    document.getElementById('closePaymentModal').addEventListener('click', function () {
+        document.getElementById('paymentModal').classList.add('hidden');
+    });
+
+    document.getElementById('cancelPayment').addEventListener('click', function () {
+        document.getElementById('paymentModal').classList.add('hidden');
+    });
+</script>
+
+{% endblock %}

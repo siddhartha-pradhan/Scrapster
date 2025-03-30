@@ -1,13 +1,16 @@
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.template.loader import render_to_string
+
 from .forms import WasteRequestForm
-from .models import WasteRequest, Complaint
+from .models import WasteRequest, Complaint, Payment
 from profileapp.models import Address
 from account_app.decorators import role_required
 
 # wasteapp/views.py
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMessage
 from django.conf import settings
 from django.urls import reverse
 
@@ -179,3 +182,148 @@ def submit_complaint(request):
 
     messages.success(request, "Complaint submitted successfully.")
     return redirect('wasteapp:my_requests')
+
+
+@role_required(allowed_roles=['user'])
+def payment_details(request):
+    payments = Payment.objects.filter(user=request.user).order_by('-payment_for')
+
+    if payments.exists():
+        latest_payment_date = payments.first().payment_for
+        next_payment_date = get_next_month(latest_payment_date)
+    else:
+        today = date.today()
+        next_payment_date = date(today.year, today.month, 1)
+
+    context = {
+        'payments': payments,
+        'next_payment_date': next_payment_date,
+    }
+    return render(request, 'wasteapp/payment_details.html', context)
+
+from datetime import date
+
+def get_next_month(first_of_month: date):
+    year = first_of_month.year
+    month = first_of_month.month
+    if month == 12:
+        return date(year + 1, 1, 1)
+    else:
+        return date(year, month + 1, 1)
+
+def get_next_payment_date(user):
+    payments = Payment.objects.filter(user=user).order_by('-payment_for')
+    if payments.exists():
+        last_payment = payments.first().payment_for
+        return get_next_month(last_payment)
+    else:
+        today = date.today()
+        return date(today.year, today.month, 1)
+
+import uuid
+
+@login_required
+def initiate_payment(request):
+    if request.method == 'POST':
+        customer_name = f"{request.user.first_name} {request.user.last_name}".strip()
+        customer_email = request.user.email
+
+        url = "https://dev.khalti.com/api/v2/epayment/initiate/"
+        payload = {
+            "return_url": settings.KHALTI_RETURN_URL,
+            "website_url": settings.KHALTI_WEBSITE_URL,
+            "amount": int(float(500)),
+            "purchase_order_id": str(uuid.uuid4()),
+            "purchase_order_name": "Order Payment",
+            "customer_info": {
+                "name": customer_name,
+                "email": customer_email,
+                "phone": "9800000000",  # Replace with dynamic phone if available
+            },
+            "amount_breakdown": [
+                {
+                    "label": "Mark Price",
+                    "amount": int(float(443))
+                },
+                {
+                    "label": "VAT",
+                    "amount": int(float(57))
+                }
+            ],
+        }
+
+        headers = {
+            "Authorization": f"Key {settings.KHALTI_SECRET_KEY}",
+            "Content-Type": "application/json"
+        }
+
+        response = requests.post(url, json=payload, headers=headers)
+        response_data = response.json()
+
+        if response.status_code == 200 and "payment_url" in response_data:
+            return redirect(response_data["payment_url"])
+        else:
+            return JsonResponse({
+                "success": False,
+                "message": response_data.get("detail", "Error in payment initiation")
+            })
+
+def khalti_payment_success(request):
+    pidx = request.GET.get("pidx")
+
+    if not pidx:
+        return JsonResponse({"error": "Missing pidx"}, status=400)
+
+    response = requests.post(
+        "https://dev.khalti.com/api/v2/epayment/lookup/",
+        json={"pidx": pidx},
+        headers={
+            "Authorization": f"Key {settings.KHALTI_SECRET_KEY}",
+            "Content-Type": "application/json"
+        }
+    )
+
+    if response.status_code != 200:
+        return JsonResponse({"error": "Khalti API call failed"}, status=500)
+
+    payment_data = response.json()
+    status = payment_data.get("status")
+    order_id = request.GET.get("purchase_order_id")
+    transaction_id = request.GET.get("transaction_id")
+
+    if status == "Completed":
+        user = request.user
+        next_payment_date = get_next_payment_date(user)
+
+        # Double-check to avoid duplicates
+        if Payment.objects.filter(user=user, payment_for=next_payment_date).exists():
+            messages.warning(request, f"Payment for {next_payment_date.strftime('%B %Y')} already exists.")
+            return redirect('wasteapp:payment_details')
+
+        # Create the payment (set amount as needed)
+        Payment.objects.create(
+            user=user,
+            payment_for=next_payment_date,
+            amount=500.00  # 👈 Replace with your actual logic or dynamic value
+        )
+
+        messages.success(request, f"Payment for {next_payment_date.strftime('%B %Y')} completed successfully.")
+
+        mail_subject = f"Payment Received for {next_payment_date.strftime('%B %Y')}"
+        message = (
+            f"Dear {user.first_name or user.username},\n\n"
+            f"We've successfully received your payment of रु500.00 for the month of {next_payment_date.strftime('%B %Y')}.\n\n"
+            f"Thank you for staying up to date with your waste management payments.\n\n"
+            f"Best regards,\n"
+            f"The Waste Management Team"
+        )
+        to_email = user.email
+        send_email = EmailMessage(mail_subject, message, to=[to_email], from_email=settings.EMAIL_ROOT_EMAIL)
+        send_email.send()
+        print("Sent mail success")
+
+        return redirect('wasteapp:payment_details')
+    elif status in ["Pending", "Initiated"]:
+        return redirect('wasteapp:payment_details')
+    else:
+        return redirect('wasteapp:payment_details')

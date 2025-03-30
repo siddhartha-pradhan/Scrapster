@@ -22,5 +22,5 @@ urlpatterns = [
     path('mark_as_completed/<int:request_id>/', views.mark_as_completed, name='mark_as_completed'),
     path("manage_drivers/", views.manage_drivers, name="manage_drivers"),
     path('user/<int:user_id>/', views.user_detail, name='user_detail'),
-
+    path('update-complaint-status/', views.update_complaint_status, name='update_complaint_status'),
 ]

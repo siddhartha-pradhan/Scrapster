@@ -1,14 +1,16 @@
+{% block content %}
 <div class="border-b border-gray-200 pb-4 mb-4">
-                <div class="flex items-center">
-                    <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mr-4">
-                        <i class="fas fa-user text-primary text-2xl"></i>
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-bold text-gray-800">{{ user.username }}</h2>
-                        <p class="text-gray-600">{{ user.email }}</p>
-                    </div>
-                </div>
-            </div>
+    <div class="flex items-center">
+        <div class="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mr-4">
+            <i class="fas fa-user text-primary text-2xl"></i>
+        </div>
+        <div>
+            <h2 class="text-2xl font-bold text-gray-800">{{ user.username }}</h2>
+            <p class="text-gray-600">{{ user.email }}</p>
+        </div>
+    </div>
+</div>
+
 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
     <div>
         <h3 class="text-lg font-semibold text-gray-800 mb-3">User Information</h3>
@@ -49,11 +51,11 @@
             </div>
             <div>
                 <p class="text-sm text-gray-500">Pending Requests</p>
-{#                            <p class="font-medium">{{ user.waste_requests.filter(status="Pending").count }}</p>#}
+                <p class="font-medium">{{ unassigned_pending_count }}</p>
             </div>
             <div>
                 <p class="text-sm text-gray-500">Completed Requests</p>
-{#                            <p class="font-medium">{{ user.waste_requests.filter(status="Completed").count }}</p>#}
+                <p class="font-medium">{{ completed_count }}</p>
             </div>
             <div>
                 <p class="text-sm text-gray-500">Last Request</p>
@@ -70,26 +72,66 @@
         </div>
     </div>
 </div>
-{% if user.waste_requests.all %}
+
 <div class="mb-6">
-    <h3 class="text-lg font-semibold text-gray-800 mb-3">Recent Requests</h3>
-    <div class="bg-gray-50 rounded-lg p-4">
-        <div class="space-y-3">
-            {% for request in user.waste_requests.all|slice:":3" %}
-            <div class="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
-                <div>
-                    <p class="font-medium">{{ request.waste_type }} ({{ request.quantity }} kg)</p>
-                    <p class="text-sm text-gray-500">{{ request.created_at|date:"M d, Y" }}</p>
+    <h3 class="text-lg font-semibold text-gray-800 mb-3">User Activity</h3>
+
+    <div>
+        <ul class="flex border-b border-gray-200 mb-4">
+            <li class="mr-4">
+                <button class="tab-btn text-sm font-medium py-2 px-4 border-b-2 border-transparent hover:border-primary"
+                        data-tab="requests">
+                    Recent Requests
+                </button>
+            </li>
+            <li>
+                <button class="tab-btn text-sm font-medium py-2 px-4 border-b-2 border-transparent hover:border-primary"
+                        data-tab="payments">
+                    Latest Payments
+                </button>
+            </li>
+        </ul>
+
+        <div id="tab-requests" class="tab-content">
+            {% if recent_requests %}
+            <div class="bg-gray-50 rounded-lg p-4 space-y-3">
+                {% for request in recent_requests %}
+                <div class="flex items-center justify-between p-3 bg-white rounded-lg shadow-sm">
+                    <div>
+                        <p class="font-medium">{{ request.waste_type }} ({{ request.quantity }} kg)</p>
+                        <p class="text-sm text-gray-500">{{ request.created_at|date:"M d, Y" }}</p>
+                    </div>
+                    <span class="status-badge {% if request.status == 'Completed' %}status-active{% elif request.status == 'Pending' %}bg-yellow-100 text-yellow-800{% endif %}">
+                        {{ request.status }}
+                    </span>
                 </div>
-                <span class="status-badge {% if request.status == 'Completed' %}status-active{% elif request.status == 'Pending' %}bg-yellow-100 text-yellow-800{% endif %}">
-                    {{ request.status }}
-                </span>
+                {% endfor %}
             </div>
-            {% endfor %}
+            {% else %}
+            <p class="text-sm text-gray-500">No recent requests found.</p>
+            {% endif %}
+        </div>
+
+        <div id="tab-payments" class="tab-content hidden">
+            {% if recent_payments %}
+            <div class="bg-gray-50 rounded-lg p-4 space-y-3">
+                {% for payment in recent_payments %}
+                <div class="p-3 bg-white rounded-lg shadow-sm flex items-center justify-between">
+                    <div>
+                        <p class="font-medium">₹{{ payment.amount }} for {{ payment.payment_for|date:"F Y" }}</p>
+                        <p class="text-sm text-gray-500">Paid at: {{ payment.paid_at|date:"d M Y, h:i A" }}</p>
+                    </div>
+                    <span class="status-badge bg-green-100 text-green-700">Paid</span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-sm text-gray-500">No payments recorded yet.</p>
+            {% endif %}
         </div>
     </div>
 </div>
-{% endif %}
+
 <div class="flex justify-end space-x-3 pt-4 border-t border-gray-200">
     <a href="{% url 'adminapp:toggle_user_status' user.id %}" class="bg-primary text-white py-2 px-4 rounded-lg hover:bg-dark transition-all">
         {% if user.is_active %}
@@ -103,3 +145,37 @@
         <i class="fas fa-trash-alt mr-1"></i> Delete User
     </a>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const tabButtons = document.querySelectorAll(".tab-btn");
+        const tabContents = document.querySelectorAll(".tab-content");
+
+        tabButtons.forEach(button => {
+            button.addEventListener("click", function () {
+                const tab = this.getAttribute("data-tab");
+                console.log(tab);
+                // Hide all tab contents
+                tabContents.forEach(content => content.classList.add("hidden"));
+
+                // Remove active styling from all buttons
+                tabButtons.forEach(btn => btn.classList.remove("border-primary", "text-primary"));
+
+                // Show selected tab
+                const activeTab = document.getElementById(`tab-${tab}`);
+                if (activeTab) {
+                    activeTab.classList.remove("hidden");
+                }
+
+                // Highlight active button
+                this.classList.add("border-primary", "text-primary");
+            });
+        });
+
+        // Auto-select the first tab
+        const firstTab = document.querySelector(".tab-btn");
+        if (firstTab) firstTab.click();
+    });
+</script>
+
+{% endblock %}

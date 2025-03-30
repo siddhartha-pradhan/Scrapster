@@ -1,7 +1,7 @@
 # adminapp/views.py
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.admin.views.decorators import staff_member_required
-from wasteapp.models import WasteRequest, Complaint
+from wasteapp.models import WasteRequest, Complaint, Payment
 from django.utils import timezone
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -231,12 +231,30 @@ def manage_drivers(request):
     return render(request, "adminapp/manage_drivers.html", context)
 
 
-# adminapp/views.py
-
-
-
-
 def user_detail(request, user_id):
-    """Fetch and return user details."""
     user = get_object_or_404(User, id=user_id)
-    return render(request, 'adminapp/user_detail.html', {'user': user})
+    unassigned_pending_count = user.waste_requests.filter(driver=None, status='Pending').count()
+    completed_count = user.waste_requests.filter(status='Completed').count()
+
+    recent_requests = user.waste_requests.order_by('-created_at')[:3]
+    recent_payments = Payment.objects.filter(user=user).order_by('-paid_at')[:3]
+
+    return render(request, 'adminapp/user_detail.html', {
+        'user': user,
+        'unassigned_pending_count': unassigned_pending_count,
+        'completed_count': completed_count,
+        'recent_requests': recent_requests,
+        'recent_payments': recent_payments,
+    })
+
+def update_complaint_status(request):
+    if request.method == 'POST':
+        complaint_id = request.POST.get('complaint_id')
+        status = request.POST.get('status')
+        response = request.POST.get('response')
+        complaint = get_object_or_404(Complaint, id=complaint_id)
+        complaint.status = status
+        complaint.response = response
+        complaint.save()
+        messages.success(request, "Complaint status updated successfully.")
+    return redirect('adminapp:manage_pending_requests')  # or wherever you want

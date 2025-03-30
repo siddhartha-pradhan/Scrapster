@@ -153,30 +153,56 @@
         </div>
     </div>
 
-    <div id="complaintViewModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-        <div class="bg-white w-full max-w-md rounded-lg shadow-lg p-6 relative">
-            <button id="closeComplaintModal" class="absolute top-3 right-4 text-gray-500 hover:text-gray-700 text-xl">&times;</button>
-            <h3 class="text-lg font-bold mb-4 text-gray-800">Complaint Details</h3>
-            <div class="text-sm space-y-3">
-                <div>
-                    <span class="font-semibold text-gray-700">Category:</span>
-                    <span id="complaintCategory" class="text-gray-800"></span>
+    <div id="complaintViewModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm flex justify-center items-center z-50 transition-opacity duration-300">
+        <div class="bg-white w-full max-w-md rounded-xl shadow-2xl p-6 relative transform transition-all duration-300 scale-100">
+            <!-- Close button with improved styling -->
+            <button id="closeComplaintModal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
+
+            <!-- Header with accent border -->
+            <div class="border-b border-gray-100 pb-4 mb-5">
+                <h3 class="text-xl font-bold text-gray-800">Complaint Details</h3>
+                <p class="text-sm text-gray-500 mt-1">View the complete complaint information</p>
+            </div>
+
+            <!-- Content with improved spacing and styling -->
+            <div class="space-y-5 mb-6">
+                <!-- Category -->
+                <div class="bg-gray-50 p-3 rounded-lg">
+                    <span class="text-sm font-medium text-gray-600 block mb-1">Category</span>
+                    <span id="complaintCategory" class="text-gray-800 font-semibold"></span>
                 </div>
-                <div>
-                    <span class="font-semibold text-gray-700">Description:</span>
-                    <p id="complaintDescription" class="text-gray-800 mt-1"></p>
+
+                <!-- Description -->
+                <div class="bg-gray-50 p-3 rounded-lg">
+                    <span class="text-sm font-medium text-gray-600 block mb-1">Description</span>
+                    <p id="complaintDescription" class="text-gray-800 whitespace-pre-line"></p>
                 </div>
-                <div>
-                    <span class="font-semibold text-gray-700">Status:</span>
-                    <span id="complaintStatus" class="text-gray-800"></span>
+
+                <!-- Status with badge -->
+                <div class="bg-gray-50 p-3 rounded-lg">
+                    <span class="text-sm font-medium text-gray-600 block mb-1">Status</span>
+                    <span id="complaintStatus" class="inline-flex px-2.5 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"></span>
                 </div>
-                <div>
-                    <span class="font-semibold text-gray-700">Response:</span>
-                    <p id="complaintResponse" class="text-gray-800 mt-1"></p>
+
+                <!-- Response -->
+                <div class="bg-gray-50 p-3 rounded-lg">
+                    <span class="text-sm font-medium text-gray-600 block mb-1">Response</span>
+                    <p id="complaintResponse" class="text-gray-800 whitespace-pre-line"></p>
                 </div>
             </div>
-            <div class="mt-6 text-right">
-                <button id="closeComplaintFooter" class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-2 px-4 rounded">Close</button>
+
+            <!-- Footer with improved button -->
+            <div class="flex justify-end pt-2">
+                <button
+                    id="closeComplaintFooter"
+                    class="px-5 py-2.5 rounded-lg bg-gray-100 text-gray-700 font-medium hover:bg-gray-200 transition-colors focus:outline-none focus:ring-2 focus:ring-gray-300">
+                    Close
+                </button>
             </div>
         </div>
     </div>
@@ -213,6 +239,44 @@
 
     document.getElementById('closeComplaintFooter').addEventListener('click', () => {
         document.getElementById('complaintViewModal').classList.add('hidden');
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+                if (mutation.target.id === 'complaintStatus' && mutation.target.textContent) {
+                    const status = mutation.target.textContent.trim();
+                    let bgColor = 'bg-blue-100';
+                    let textColor = 'text-blue-800';
+
+                    switch(status) {
+                        case 'Pending':
+                            bgColor = 'bg-yellow-100';
+                            textColor = 'text-yellow-800';
+                            break;
+                        case 'In Progress':
+                            bgColor = 'bg-blue-100';
+                            textColor = 'text-blue-800';
+                            break;
+                        case 'Resolved':
+                            bgColor = 'bg-green-100';
+                            textColor = 'text-green-800';
+                            break;
+                        case 'Rejected':
+                            bgColor = 'bg-red-100';
+                            textColor = 'text-red-800';
+                            break;
+                    }
+
+                    mutation.target.className = `inline-flex px-2.5 py-1 rounded-full text-xs font-medium ${bgColor} ${textColor}`;
+                }
+            });
+        });
+
+        const statusElement = document.getElementById('complaintStatus');
+        if (statusElement) {
+            observer.observe(statusElement, { childList: true, characterData: true, subtree: true });
+        }
     });
 </script>
 
