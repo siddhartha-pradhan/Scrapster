@@ -1,11 +1,11 @@
 from django.http import JsonResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.template.loader import render_to_string
 
 from .forms import WasteRequestForm
-from .models import WasteRequest, Complaint, Payment
+from .models import WasteRequest, Complaint, Payment, WasteTip, CommunityInitiative, UserCommunityInitiative
 from profileapp.models import Address
 from account_app.decorators import role_required
 
@@ -336,3 +336,59 @@ def khalti_payment_success(request):
         return redirect('wasteapp:payment_details')
     else:
         return redirect('wasteapp:payment_details')
+
+@role_required(allowed_roles=['user'])
+def tip_details(request):
+    tips = WasteTip.objects.filter()
+
+    for tip in tips:
+        tip.embed_url = extract_embed_url(tip.youtube_link) if tip.youtube_link else ""
+
+    context = {
+        'tips': tips,
+    }
+
+    return render(request, 'wasteapp/tip_details.html', context)
+
+import re
+
+def extract_embed_url(url):
+    # Extract video ID from various YouTube formats
+    match = re.search(r"(?:v=|\/)([0-9A-Za-z_-]{11})", url)
+    if match:
+        video_id = match.group(1)
+        return f"https://www.youtube.com/embed/{video_id}"
+    return ""
+
+
+@login_required
+def user_initiative_list(request):
+    initiatives = CommunityInitiative.objects.order_by('-start_date')
+    user_participation_ids = set(
+        UserCommunityInitiative.objects.filter(user=request.user)
+        .values_list('community_initiative_id', flat=True)
+    )
+
+    for initiative in initiatives:
+        initiative.is_attending = initiative.id in user_participation_ids
+
+    context = {
+        'initiatives': initiatives,
+    }
+
+    return render(request, 'wasteapp/initiatives.html', context)
+
+@login_required
+def toggle_initiative_participation(request, initiative_id):
+    initiative = get_object_or_404(CommunityInitiative, id=initiative_id)
+    participation, created = UserCommunityInitiative.objects.get_or_create(
+        user=request.user,
+        community_initiative=initiative
+    )
+
+    if not created:
+        participation.delete()
+
+    messages.success(request, "Your action has been successfully saved.")
+
+    return redirect('wasteapp:user_initiative_list')

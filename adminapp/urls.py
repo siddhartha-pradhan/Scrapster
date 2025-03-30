@@ -23,4 +23,11 @@ urlpatterns = [
     path("manage_drivers/", views.manage_drivers, name="manage_drivers"),
     path('user/<int:user_id>/', views.user_detail, name='user_detail'),
     path('update-complaint-status/', views.update_complaint_status, name='update_complaint_status'),
+    path('tips/', views.tip_list, name='tip_list'),
+    path('tips/create/', views.tip_create, name='tip_create'),
+    path('tips/<int:pk>/edit/', views.tip_edit, name='tip_edit'),
+    path('tips/<int:pk>/delete/', views.tip_delete, name='tip_delete'),
+    path('initiatives/', views.initiative_list, name='initiative_list'),
+    path('initiatives/create/', views.initiative_create, name='initiative_create'),
+    path('initiatives/<int:initiative_id>/', views.initiative_detail, name='initiative_detail'),
 ]

@@ -1,0 +1,95 @@
+﻿{% extends "adminapp/base.html" %}
+
+{% block content %}
+<div class="bg-light p-6 rounded-xl shadow-md">
+    <div class="mb-6">
+        <a href="{% url 'adminapp:initiative_list' %}" class="inline-flex items-center text-primary hover:text-dark transition-colors">
+            <i class="fas fa-arrow-left mr-2"></i> Back to Initiatives
+        </a>
+    </div>
+
+    <div class="space-y-8">
+        <!-- Initiative Details Card -->
+        <div class="bg-white p-8 rounded-xl shadow-md border border-gray-200 relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1.5 bg-secondary"></div>
+
+            <div class="flex justify-between items-start">
+                <div>
+                    <h2 class="text-3xl font-bold text-dark mb-4">{{ initiative.title }}</h2>
+                    <div class="prose text-gray-700 mb-6 max-w-3xl">
+                        {{ initiative.description }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                <div class="bg-light bg-opacity-70 p-4 rounded-lg">
+                    <div class="flex items-center text-gray-700 mb-2">
+                        <i class="fas fa-map-marker-alt text-secondary w-6"></i>
+                        <span class="ml-2 font-medium">Location:</span>
+                        <span class="ml-2">{{ initiative.location|default:"Not specified" }}</span>
+                    </div>
+
+                    <div class="flex items-center text-gray-700">
+                        <i class="fas fa-calendar-alt text-secondary w-6"></i>
+                        <span class="ml-2 font-medium">Dates:</span>
+                        <span class="ml-2">
+                            {{ initiative.start_date }}
+                            {% if initiative.end_date %} to {{ initiative.end_date }}{% endif %}
+                        </span>
+                    </div>
+                </div>
+
+                {% if initiative.location_link %}
+                <div class="flex items-center">
+                    <a href="{{ initiative.location_link }}" target="_blank" class="inline-flex items-center px-4 py-2 bg-primary hover:bg-dark text-white rounded-lg transition-colors duration-300 shadow-sm">
+                        <i class="fas fa-map-marked-alt mr-2"></i> View Location Map
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Attendees Card -->
+        <div class="bg-white p-8 rounded-xl shadow-md border border-gray-200">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-semibold text-dark flex items-center">
+                    <i class="fas fa-users text-secondary mr-3"></i> Users Attending
+                </h3>
+
+                {% if attendees %}
+                <span class="bg-secondary bg-opacity-20 text-dark px-3 py-1 rounded-full text-sm font-medium">
+                    {{ attendees|length }} Participant{% if attendees|length != 1 %}s{% endif %}
+                </span>
+                {% endif %}
+            </div>
+
+            {% if attendees %}
+            <div class="overflow-hidden rounded-xl border border-gray-100">
+                <ul class="divide-y divide-gray-100">
+                    {% for entry in attendees %}
+                    <li class="py-3 px-4 hover:bg-light transition-colors flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="w-8 h-8 rounded-full bg-accent bg-opacity-20 flex items-center justify-center text-accent mr-3">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <span class="font-medium text-gray-800">{{ entry.user.get_full_name|default:entry.user.username }}</span>
+                        </div>
+                        <span class="text-sm text-gray-500">{{ entry.user.email }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% else %}
+            <div class="bg-gray-50 rounded-xl p-8 text-center">
+                <div class="flex flex-col items-center justify-center text-gray-500">
+                    <i class="fas fa-user-friends text-4xl text-gray-300 mb-3"></i>
+                    <p class="text-lg text-gray-500">No users have signed up for this initiative yet.</p>
+                    <p class="text-sm text-gray-400 mt-2">Participants will appear here once they register.</p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

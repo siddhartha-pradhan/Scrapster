@@ -1,0 +1,74 @@
+﻿{% extends "profileapp/base.html" %}
+{% block content %}
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-bold text-gray-800">
+            <i class="fa-solid fa-chalkboard-user text-primary mr-2"></i> Tips and Knowledge Details
+        </h2>
+    </div>
+
+    {% if tips %}
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {% for tip in tips %}
+        <div class="bg-white rounded-xl shadow-md border border-gray-100 overflow-hidden">
+            {% if tip.youtube_link %}
+            <div class="aspect-video">
+                <iframe class="w-full h-64 rounded-t-lg" src="{{ tip.embed_url }}" frameborder="0" allowfullscreen></iframe>
+            </div>
+            {% endif %}
+            <div class="p-5 space-y-3">
+                <h3 class="text-lg font-bold text-gray-800">{{ tip.title }}</h3>
+                <p class="text-sm text-gray-500">Tag: {{ tip.tag|default:"-" }}</p>
+                <p class="text-sm text-gray-500">Created: {{ tip.created_at|date:"d M Y, h:i A" }}</p>
+                <button
+                    class="bg-primary hover:bg-dark text-white text-sm px-4 py-2 rounded-lg transition-all open-modal"
+                    data-title="{{ tip.title }}"
+                    data-content="{{ tip.content|escapejs }}"
+                >
+                    <i class="fas fa-eye mr-1"></i> View More
+                </button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Modal -->
+    <div id="tipModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center">
+        <div class="bg-white w-full max-w-xl p-6 rounded-lg shadow-lg relative">
+            <button id="closeModal" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+            <h3 id="modalTitle" class="text-xl font-bold text-gray-800 mb-4"></h3>
+            <div id="modalContent" class="text-gray-700 text-sm whitespace-pre-line"></div>
+        </div>
+    </div>
+
+    <script>
+        const modal = document.getElementById("tipModal");
+        const closeModal = document.getElementById("closeModal");
+        const modalTitle = document.getElementById("modalTitle");
+        const modalContent = document.getElementById("modalContent");
+
+        document.querySelectorAll('.open-modal').forEach(button => {
+            button.addEventListener('click', () => {
+                modalTitle.textContent = button.dataset.title;
+                modalContent.textContent = button.dataset.content;
+                modal.classList.remove('hidden');
+            });
+        });
+
+        closeModal.addEventListener('click', () => {
+            modal.classList.add('hidden');
+        });
+    </script>
+
+    {% else %}
+    <div class="bg-white rounded-xl shadow-md p-8 text-center border border-gray-100">
+        <div class="w-16 h-16 bg-light rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-wallet text-2xl text-primary"></i>
+        </div>
+        <h3 class="text-xl font-medium text-gray-800 mb-2">No Tips Found</h3>
+        <p class="text-gray-600">Looks like you haven't received any knowledge tips yet.</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

@@ -1,7 +1,10 @@
 # adminapp/views.py
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.admin.views.decorators import staff_member_required
-from wasteapp.models import WasteRequest, Complaint, Payment
+
+from adminapp.forms import WasteTipForm, CommunityInitiativeForm
+from wasteapp.models import WasteRequest, Complaint, Payment, WasteTip, CommunityInitiative, UserCommunityInitiative
 from django.utils import timezone
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -275,3 +278,66 @@ def update_complaint_status(request):
         complaint.save()
         messages.success(request, "Complaint status updated successfully.")
     return redirect('adminapp:manage_pending_requests')  # or wherever you want
+
+def is_admin(user):
+    return user.is_staff or user.is_superuser
+
+def tip_list(request):
+    tips = WasteTip.objects.all().order_by('-created_at')
+    return render(request, 'adminapp/tips/list.html', {'tips': tips})
+
+@login_required
+@user_passes_test(is_admin)
+def tip_create(request):
+    form = WasteTipForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Tip created successfully.")
+        return redirect('adminapp:tip_list')
+    return render(request, 'adminapp/tips/form.html', {'form': form, 'title': 'Create Tip'})
+
+@login_required
+@user_passes_test(is_admin)
+def tip_edit(request, pk):
+    tip = get_object_or_404(WasteTip, pk=pk)
+    form = WasteTipForm(request.POST or None, instance=tip)
+    if form.is_valid():
+        form.save()
+        messages.success(request, "Tip updated successfully.")
+        return redirect('adminapp:tip_list')
+    return render(request, 'adminapp/tips/form.html', {'form': form, 'title': 'Edit Tip'})
+
+@login_required
+@user_passes_test(is_admin)
+def tip_delete(request, pk):
+    tip = get_object_or_404(WasteTip, pk=pk)
+    if request.method == 'POST':
+        tip.delete()
+        return redirect('adminapp:tip_list')
+    return render(request, 'adminapp/tips/confirm_delete.html', {'tip': tip})
+
+
+@login_required
+@user_passes_test(is_admin)
+def initiative_create(request):
+    form = CommunityInitiativeForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+        return redirect('adminapp:initiative_list')
+    return render(request, 'adminapp/initiatives/form.html', {'form': form, 'title': 'Create Initiative'})
+
+@login_required
+def initiative_list(request):
+    initiatives = CommunityInitiative.objects.order_by('-start_date')
+    return render(request, 'adminapp/initiatives/list.html', {'initiatives': initiatives})
+
+def initiative_detail(request, initiative_id):
+    initiative = get_object_or_404(CommunityInitiative, pk=initiative_id)
+    attendees = UserCommunityInitiative.objects.filter(community_initiative=initiative).select_related('user')
+
+    context = {
+        'initiative': initiative,
+        'attendees': attendees
+    }
+
+    return render(request, 'adminapp/initiatives/detail.html', context)

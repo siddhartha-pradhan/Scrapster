@@ -59,3 +59,32 @@ class Payment(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - ₹{self.amount} for {self.payment_for.strftime('%B %Y')}"
+
+class WasteTip(models.Model):
+    title = models.CharField(max_length=100)
+    content = models.TextField()
+    tag = models.CharField(max_length=50, blank=True, help_text="Optional tag to group or filter tips")
+    youtube_link = models.URLField(blank=True, null=True, help_text="Optional YouTube link for related video")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+class CommunityInitiative(models.Model):
+    title = models.CharField(max_length=150)
+    description = models.TextField()
+    location = models.CharField(max_length=100, blank=True)
+    start_date = models.DateField()
+    end_date = models.DateField(null=True, blank=True)
+    location_link = models.URLField(blank=True, help_text="Optional link for more info or registration")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+class UserCommunityInitiative(models.Model):
+    user = models.ForeignKey(User, related_name='user', on_delete=models.CASCADE)
+    community_initiative = models.ForeignKey(CommunityInitiative, related_name='initiatives', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return f"{self.user.username} attending {self.community_initiative.title}"
