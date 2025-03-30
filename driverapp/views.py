@@ -101,6 +101,7 @@ def driver_dashboard(request):
         'total_waste_collected': total_waste_collected,
         'waste_by_type': waste_by_type,
         'pickups_by_day': pickups_by_day_formatted,
+        'today': today,
     }
 
     return render(request, 'driverapp/dashboard.html', context)
