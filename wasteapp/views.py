@@ -277,6 +277,7 @@ def initiate_payment(request):
                 "message": response_data.get("detail", "Error in payment initiation")
             })
 
+@login_required
 def khalti_payment_success(request):
     pidx = request.GET.get("pidx")
 
